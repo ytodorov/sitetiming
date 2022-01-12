@@ -1,0 +1,60 @@
+﻿@page "/"
+@using Core.Extensions
+
+@if (Timings != null)
+{
+    @for (int i = 0; i < Timings2.Count; i++)
+    {
+        var t0 = Timings0[i];
+        var t1 = Timings1[i];
+        var t2 = Timings2[i];
+
+        <div class="row row-cols-1 row-cols-md-3 g-4 m-2">
+        <div class="col">
+            <div class="card h-100">
+                <img src="@($"{t0.Site.ScreenshotBase64}")" class="card-img-top" alt="...">
+                <div class="card-body">
+                    <img src="@($"https://www.google.com/s2/favicons?domain={t0.Site.Name}")" class="img-fluid" alt="...">
+                    <h5 class="card-title">@t0.Site.Name</h5>
+                    <p class="card-text">Latency: @t0.LatencyInChrome DomLoaded: @t0.DOMContentLoadedEventInChrome</p>
+                </div>
+                <div class="card-footer">
+                    <small class="text-muted">Last updated @t0.DateCreated.GetValueOrDefault().TimeAgo()</small>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100">
+                <img src="@($"{t1.Site.ScreenshotBase64}")" class="card-img-top" alt="...">
+                <div class="card-body">
+                    <img src="@($"https://www.google.com/s2/favicons?domain={t1.Site.Name}")" class="img-fluid" alt="...">
+                    <h5 class="card-title">@t1.Site.Name</h5>
+                    <p class="card-text">Latency: @t1.LatencyInChrome DomLoaded: @t1.DOMContentLoadedEventInChrome</p>
+                </div>
+                <div class="card-footer">
+                    <small class="text-muted">Last updated @t1.DateCreated.GetValueOrDefault().TimeAgo()</small>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card h-100">
+                <img src="@($"{t2.Site.ScreenshotBase64}")" class="card-img-top" alt="...">
+                <div class="card-body">
+                    <img src="@($"https://www.google.com/s2/favicons?domain={t2.Site.Name}")" class="img-fluid" alt="...">
+                    <h5 class="card-title">@t2.Site.Name</h5>
+                    <p class="card-text">Latency: @t2.LatencyInChrome DomLoaded: @t2.DOMContentLoadedEventInChrome</p>
+                </div>
+                <div class="card-footer">
+                    <small class="text-muted">Last updated @t2.DateCreated.GetValueOrDefault().TimeAgo()</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    }
+}
+else
+{
+    <span class="sr-only">Loading...</span>
+    <div class="spinner-border" role="status">
+    </div>
+}
