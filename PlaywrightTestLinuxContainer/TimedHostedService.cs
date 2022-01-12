@@ -19,8 +19,8 @@ namespace PlaywrightTestLinuxContainer
             _logger.LogInformation("Timed Hosted Service running.");
 
             _timer = new Timer(DoWork, null, TimeSpan.Zero,
-                TimeSpan.FromMinutes(1));
-                       
+                TimeSpan.FromMinutes(10000));
+
 
             return Task.CompletedTask;
         }
@@ -29,11 +29,10 @@ namespace PlaywrightTestLinuxContainer
 
         private async void DoWork(object? state)
         {
-            try
+            while (true)
             {
-                if (IsDoWorkCompleted)
+                try
                 {
-                    IsDoWorkCompleted = false;
                     using SiteTimingContext timingContext = new SiteTimingContext();
 
                     int countOfAllSites = 1000;
@@ -72,14 +71,10 @@ namespace PlaywrightTestLinuxContainer
                         var strRes = string.Concat(results);
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, ex.Message);
-            }
-            finally
-            {
-                IsDoWorkCompleted = true;
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, ex.Message);
+                }
             }
         }
 

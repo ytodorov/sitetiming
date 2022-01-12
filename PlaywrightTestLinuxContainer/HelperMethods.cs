@@ -38,13 +38,14 @@ return s; } f()");
                 if (site.ScreenshotBase64 == null)
                 {
                     string path = $"{site.Id}.jpeg";
-                    await page.ScreenshotAsync(new PageScreenshotOptions() { Quality = 10, Type = ScreenshotType.Jpeg, Path = path });
+                    await page.ScreenshotAsync(new PageScreenshotOptions() { Quality = 20, Type = ScreenshotType.Jpeg, Path = path });
                     using var image = File.OpenRead(path);
 
                     var base64 = Utils.ConvertImageToBase64(image, "jpeg");
 
                     site.ScreenshotBase64 = base64;
                     siteTimingContext.Update(site);
+                    File.Delete(path);
                 }
 
                 var stringResult = res.Value.ToString();
