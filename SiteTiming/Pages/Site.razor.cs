@@ -6,11 +6,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace SiteTiming.Pages
 {
-    public partial class Index
+    public partial class Site
     {
         [Inject]
         public SiteTimingContext SiteTimingContext { get; set; }
-        
+
         [Inject]
         public IJSRuntime JsRuntime { get; set; }
         public string Now { get; set; } = DateTime.Now.ToString("O");
@@ -31,7 +31,7 @@ namespace SiteTiming.Pages
             {
                 Timings = SiteTimingContext.Timings.Include(s => s.Site).OrderByDescending(s => s.DateCreated)
                     .GroupBy(s => s.SiteId).Select(s => s.OrderByDescending(s => s.DateCreated).First())
-                    .Take(9)
+                    //.Take(9)
                     .ToList()
                     .OrderByDescending(s => s.DateCreated)
                     .ToList();
