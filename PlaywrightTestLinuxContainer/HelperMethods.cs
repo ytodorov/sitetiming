@@ -38,7 +38,7 @@ return s; } f()");
                 if (site.ScreenshotBase64 == null)
                 {
                     string path = $"{site.Id}.jpeg";
-                    await page.ScreenshotAsync(new PageScreenshotOptions() { Quality = 20, Type = ScreenshotType.Jpeg, Path = path });
+                    await page.ScreenshotAsync(new PageScreenshotOptions() { Quality = 30, Type = ScreenshotType.Jpeg, Path = path });
                     using var image = File.OpenRead(path);
 
                     var base64 = Utils.ConvertImageToBase64(image, "jpeg");
@@ -46,6 +46,27 @@ return s; } f()");
                     site.ScreenshotBase64 = base64;
                     siteTimingContext.Update(site);
                     File.Delete(path);
+                }
+
+                if (site.FaviconBase64 == null)
+                {
+                    var favIconResult = page.GotoAsync($"https://www.google.com/s2/favicons?domain={url}");
+
+                    if (favIconResult?.Result?.Status == 200)
+                    {
+                        var body = await favIconResult.Result.BodyAsync();
+                        string path = $"{site.Id}FavIcon.png";
+                        File.WriteAllBytes(path, body);
+
+                        using var image = File.OpenRead(path);
+                        var base64 = Utils.ConvertImageToBase64(image, "png");
+
+                        site.FaviconBase64 = base64;
+                        siteTimingContext.Update(site);
+
+                        File.Delete(path);
+                    }
+
                 }
 
                 var stringResult = res.Value.ToString();

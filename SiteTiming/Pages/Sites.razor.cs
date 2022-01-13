@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace SiteTiming.Pages
 {
-    public partial class Site
+    public partial class Sites
     {
         [Inject]
         public SiteTimingContext SiteTimingContext { get; set; }
@@ -31,7 +31,6 @@ namespace SiteTiming.Pages
             {
                 Timings = SiteTimingContext.Timings.Include(s => s.Site).OrderByDescending(s => s.DateCreated)
                     .GroupBy(s => s.SiteId).Select(s => s.OrderByDescending(s => s.DateCreated).First())
-                    //.Take(9)
                     .ToList()
                     .OrderByDescending(s => s.DateCreated)
                     .ToList();

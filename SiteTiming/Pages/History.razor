@@ -1,0 +1,20 @@
+﻿@page "/history/{*UrlToGetData}"
+
+@using Core.Extensions
+
+history page of @UrlToGetData
+
+@if (UrlToGetData != null)
+{
+   <p>Choose url to get history for</p>
+}
+else
+{
+    <span class="sr-only">Loading...</span>
+    <div class="spinner-border" role="status">
+    </div>
+}
+@code
+{
+   
+}

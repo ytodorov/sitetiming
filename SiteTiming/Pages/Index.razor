@@ -29,11 +29,14 @@
         <div class="row row-cols-1 row-cols-md-3 g-4 m-2">
             <div class="col">
                 <div class="card h-100">
-                    <img src="@($"{t0.Site.ScreenshotBase64}")" class="card-img-top" alt="...">
+                    <img src="@($"{t0.Site.ScreenshotBase64}")" class="card-img-top" alt="..." width="280" height="157">
                     <div class="card-body">
 
                         <div class="d-flex flex-row">
-                            <img src="@($"https://www.google.com/s2/favicons?domain={t0.Site.Name}")" class="my-2" width="16" height="16">
+                            @if (t0.Site.FaviconBase64 != null)
+                            {
+                                <img  src="@($"{t0.Site.FaviconBase64}")" class="my-1" width="16" height="16">
+                            }
                             <h5 class="card-title">@t0.Site.Name</h5>
                         </div>
                         <p class="card-text">Latency: @t0.LatencyInChrome DomLoaded: @t0.DOMContentLoadedEventInChrome</p>
@@ -45,10 +48,13 @@
             </div>
             <div class="col">
                 <div class="card h-100">
-                    <img src="@($"{t1.Site.ScreenshotBase64}")" class="card-img-top" alt="...">
+                    <img src="@($"{t1.Site.ScreenshotBase64}")" class="card-img-top" alt="..."  width="280" height="157">
                     <div class="card-body">
                         <div class="d-flex flex-row">
-                            <img src="@($"https://www.google.com/s2/favicons?domain={t1.Site.Name}")" class="my-2" width="16" height="16">
+                            @if (t1.Site.FaviconBase64 != null)
+                            {
+                                <img  src="@($"{t1.Site.FaviconBase64}")" class="my-1" width="16" height="16">
+                            }
                             <h5 class="card-title">@t1.Site.Name</h5>
                         </div>
                         <p class="card-text">Latency: @t1.LatencyInChrome DomLoaded: @t1.DOMContentLoadedEventInChrome</p>
@@ -60,10 +66,13 @@
             </div>
             <div class="col">
                 <div class="card h-100">
-                    <img src="@($"{t2.Site.ScreenshotBase64}")" class="card-img-top" alt="...">
+                    <img src="@($"{t2.Site.ScreenshotBase64}")" class="card-img-top" alt="..."  width="280" height="157">
                     <div class="card-body">
                         <div class="d-flex flex-row">
-                            <img src="@($"https://www.google.com/s2/favicons?domain={t2.Site.Name}")" class="my-2" width="16" height="16">
+                             @if (t2.Site.FaviconBase64 != null)
+                            {
+                                <img  src="@($"{t2.Site.FaviconBase64}")" class="my-1" width="16" height="16">
+                            }
                             <h5 class="card-title">@t2.Site.Name</h5>
                         </div>
                         <p class="card-text">Latency: @t2.LatencyInChrome DomLoaded: @t2.DOMContentLoadedEventInChrome</p>

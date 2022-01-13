@@ -29,9 +29,9 @@ namespace SiteTiming.Pages
             bool isJsInitialized = (bool)isInitializedProp.GetValue(JsRuntime);
             if (isJsInitialized == true)
             {
-                Timings = SiteTimingContext.Timings.Include(s => s.Site).OrderByDescending(s => s.DateCreated)
+                Timings = SiteTimingContext.Timings.Include(s => s.Site).OrderByDescending(s => s.DateCreated).Take(3)
                     .GroupBy(s => s.SiteId).Select(s => s.OrderByDescending(s => s.DateCreated).First())
-                    .Take(9)
+                    .Take(3) // speed 
                     .ToList()
                     .OrderByDescending(s => s.DateCreated)
                     .ToList();
