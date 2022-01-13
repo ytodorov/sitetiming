@@ -4,17 +4,35 @@
 
 history page of @UrlToGetData
 
-@if (UrlToGetData != null)
-{
-   <p>Choose url to get history for</p>
-}
-else
+@if (Timings == null)
 {
     <span class="sr-only">Loading...</span>
     <div class="spinner-border" role="status">
     </div>
 }
-@code
+else
 {
-   
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Latency</th>
+                <th scope="col">DOMContentLoaded</th>
+                <th scope="col">Loaded</th>
+                <th scope="col">Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var timing in Timings)
+            {
+                <tr>
+                    <th scope="row">@(Timings.IndexOf(timing) + 1)</th>
+                    <td>@timing.LatencyInChrome</td>
+                    <td>@timing.DOMContentLoadedEventInChrome</td>
+                    <td>@timing.LatencyInChrome</td>
+                    <td>@timing.DateCreated</td>
+                </tr>
+            }
+        </tbody>
+    </table>
 }
