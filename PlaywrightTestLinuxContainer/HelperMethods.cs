@@ -1,7 +1,8 @@
-﻿using Core;
+﻿using AutoMapper;
+using Core;
+using Core.Entities;
 using Microsoft.Playwright;
 using Newtonsoft.Json;
-using PlaywrightTestLinuxContainer.Entities;
 using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -10,30 +11,54 @@ namespace PlaywrightTestLinuxContainer
 {
     public static class HelperMethods
     {
+        private static IMapper? Mapper { get; set; }
+
+        private static Type RequestType { get; set; }
+
+        static HelperMethods()
+        {
+            var config = new MapperConfiguration(cfg =>
+            {
+                cfg.CreateMap<RequestTimingResult, RequestEntity>().ReverseMap();
+                RequestType = typeof(IRequest).Assembly.GetTypes().FirstOrDefault(f => f.Name == "Request");
+                cfg.CreateMap(RequestType, typeof(RequestEntity));
+            });
+
+            Mapper = config.CreateMapper();
+        }
+
         public static string? IpAddressOfServer { get; set; }
         public static async Task<string> GetData(string url, SiteEntity site, IBrowser browser, SiteTimingContext siteTimingContext)
         {
-            TimingEntity? timings = new TimingEntity();
+            ProbeEntity? probe = new ProbeEntity();
             Stopwatch sw = Stopwatch.StartNew();
             IPage page = await browser.NewPageAsync();
+
+            List<RequestEntity> requestsToSave = new List<RequestEntity>();
+
             try
             {
                 page.SetDefaultNavigationTimeout(0);
                 page.SetDefaultTimeout(0);
 
-                //page.DOMContentLoaded += (obj, page) =>
-                //{
-                //    var message = $"Page {page.Url} loaded!";
-                //    Console.WriteLine(message);
-                //};
+                page.RequestFinished += (obj, request) =>
+                {
+                    var requestEntity = Mapper.Map<RequestEntity>(request.Timing);
+                    Mapper.Map(request, requestEntity, RequestType, typeof(RequestEntity));
+                    requestsToSave.Add(requestEntity);
+                };
 
-                var response = await page.GotoAsync(url, new PageGotoOptions { WaitUntil = WaitUntilState.DOMContentLoaded });
-                //await page.WaitForLoadStateAsync(LoadState.DOMContentLoaded, new PageWaitForLoadStateOptions() { Timeout = 0 });
+                var response = await page.GotoAsync(url, new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
+                Console.WriteLine($"{sw.ElapsedMilliseconds} finished: var response = await page.GotoAsync(url, new PageGotoOptions {{ WaitUntil = WaitUntilState.DOMContentLoaded }})");
 
                 var res = await page.EvaluateAsync(@"var s = '';
                 function f() {
 s = JSON.stringify(window.performance.timing)
 return s; } f()");
+
+                var stringResult = res.Value.ToString();
+
+                probe = JsonConvert.DeserializeObject<ProbeEntity>(stringResult);
 
                 if (site.ScreenshotBase64 == null)
                 {
@@ -69,42 +94,59 @@ return s; } f()");
 
                 }
 
-                var stringResult = res.Value.ToString();
+                var props = typeof(ProbeEntity).GetProperties();
 
-                timings = JsonConvert.DeserializeObject<TimingEntity>(stringResult);
-
-                var props = typeof(TimingEntity).GetProperties();
-
-                var sorted = props.Where(p => p.PropertyType == typeof(long) && (long)p.GetValue(timings) != 0)
-                    .OrderBy(p => (long)p.GetValue(timings)).ToList();
+                var sorted = props.Where(p => p.PropertyType == typeof(long) && (long)p.GetValue(probe) != 0)
+                    .OrderBy(p => (long)p.GetValue(probe)).ToList();
 
 
-                timings.LatencyInChrome = timings.ResponseEnd - timings.FetchStart;
-                timings.DOMContentLoadedEventInChrome = timings.DomContentLoadedEventEnd - timings.ConnectStart;
-                timings.LoadEventInChrome = timings.LoadEventEnd - timings.ConnectStart;
-                timings.IsSuccessfull = true;
+                probe.LatencyInChrome = probe.ResponseEnd - probe.FetchStart;
+                probe.DOMContentLoadedEventInChrome = probe.DomContentLoadedEventEnd - probe.ConnectStart;
+                probe.LoadEventInChrome = probe.LoadEventEnd - probe.ConnectStart;
+                probe.IsSuccessfull = true;
+
+                Console.WriteLine($"{sw.ElapsedMilliseconds} finished: timings.IsSuccessfull = true;");
             }
             catch (Exception ex)
             {
-                timings.IsSuccessfull = false;
-                timings.ExceptionMessage = ex.Message + ex.InnerException?.Message;
-                timings.ExceptionStackTrace = ex.StackTrace + ex.InnerException?.StackTrace;
+                probe.IsSuccessfull = false;
+                probe.ExceptionMessage = ex.Message + ex.InnerException?.Message;
+                probe.ExceptionStackTrace = ex.StackTrace + ex.InnerException?.StackTrace;
             }
             finally
             {
                 await page.CloseAsync();
             }
 
-            timings.SiteId = site.Id;
-            timings.SourceIpAddress = IpAddressOfServer;
-            timings.TimetakenToGenerateInMs = (long)sw.Elapsed.TotalMilliseconds;
-            timings.DateCreated = DateTime.UtcNow;
+            probe.SiteId = site.Id;
+            probe.SourceIpAddress = IpAddressOfServer;
+            probe.TimetakenToGenerateInMs = (long)sw.Elapsed.TotalMilliseconds;
+            probe.DateCreated = DateTime.UtcNow;
 
-            await siteTimingContext.Timings.AddAsync(timings);
+            
+
+            await siteTimingContext.Probes.AddAsync(probe);
             await siteTimingContext.SaveChangesAsync();
 
+            foreach (var r in requestsToSave)
+            {
+                r.ProbeId = probe.Id;
+                await siteTimingContext.Requests.AddAsync(r);
+            }
 
-            return timings.ToString();
+            try
+            {
+                await siteTimingContext.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+
+
+
+
+            return probe.ToString();
         }
 
         public static void PopulateSitesInDatabaseFromFile()

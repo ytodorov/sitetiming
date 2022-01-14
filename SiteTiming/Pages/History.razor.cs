@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using PlaywrightTestLinuxContainer;
-using PlaywrightTestLinuxContainer.Entities;
 using Microsoft.EntityFrameworkCore;
+using Core.Entities;
 
 namespace SiteTiming.Pages
 {
@@ -18,7 +18,7 @@ namespace SiteTiming.Pages
         [Inject]
         public SiteTimingContext SiteTimingContext { get; set; }
 
-        public List<TimingEntity> Timings { get; set; }
+        public List<ProbeEntity> Timings { get; set; }
 
         protected override void OnInitialized()
         {
@@ -26,7 +26,7 @@ namespace SiteTiming.Pages
             bool isJsInitialized = (bool)isInitializedProp.GetValue(JsRuntime);
             if (isJsInitialized == true)
             {
-                Timings = SiteTimingContext.Timings.Include(s => s.Site).Where(s => s.Site.Name == UrlToGetData)
+                Timings = SiteTimingContext.Probes.Include(s => s.Site).Where(s => s.Site.Name == UrlToGetData)
                    .OrderByDescending(s => s.DateCreated)
                    .ToList();
             }

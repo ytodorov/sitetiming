@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using PlaywrightTestLinuxContainer;
-using PlaywrightTestLinuxContainer.Entities;
 using Microsoft.EntityFrameworkCore;
+using Core.Entities;
 
 namespace SiteTiming.Pages
 {
@@ -15,13 +15,13 @@ namespace SiteTiming.Pages
         public IJSRuntime JsRuntime { get; set; }
         public string Now { get; set; } = DateTime.Now.ToString("O");
 
-        public List<TimingEntity> Timings { get; set; }
+        public List<ProbeEntity> Timings { get; set; }
 
-        public List<TimingEntity> Timings0 { get; set; } = new List<TimingEntity>();
+        public List<ProbeEntity> Timings0 { get; set; } = new List<ProbeEntity>();
 
-        public List<TimingEntity> Timings1 { get; set; } = new List<TimingEntity>();
+        public List<ProbeEntity> Timings1 { get; set; } = new List<ProbeEntity>();
 
-        public List<TimingEntity> Timings2 { get; set; } = new List<TimingEntity>();
+        public List<ProbeEntity> Timings2 { get; set; } = new List<ProbeEntity>();
 
         protected override void OnInitialized()
         {
@@ -29,7 +29,7 @@ namespace SiteTiming.Pages
             bool isJsInitialized = (bool)isInitializedProp.GetValue(JsRuntime);
             if (isJsInitialized == true)
             {
-                Timings = SiteTimingContext.Timings.Include(s => s.Site).OrderByDescending(s => s.DateCreated)
+                Timings = SiteTimingContext.Probes.Include(s => s.Site).OrderByDescending(s => s.DateCreated)
                     .GroupBy(s => s.SiteId).Select(s => s.OrderByDescending(s => s.DateCreated).First())
                     .ToList()
                     .OrderByDescending(s => s.DateCreated)

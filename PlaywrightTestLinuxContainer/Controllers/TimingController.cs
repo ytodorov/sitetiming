@@ -1,8 +1,8 @@
+using Core.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Playwright;
 using Newtonsoft.Json;
-using PlaywrightTestLinuxContainer.Entities;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -23,9 +23,9 @@ namespace PlaywrightTestLinuxContainer.Controllers
         }
 
         [HttpGet(Name = "GetTimings")]
-        public async Task<List<TimingEntity>> Get(int take = int.MaxValue)
+        public async Task<List<ProbeEntity>> Get(int take = int.MaxValue)
         {
-            var timigns = await timingContext.Timings.Take(take).ToListAsync();
+            var timigns = await timingContext.Probes.Take(take).ToListAsync();
             return timigns;
         }
 
