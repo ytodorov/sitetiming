@@ -1,5 +1,6 @@
 ﻿using Microsoft.Playwright;
 using Microsoft.EntityFrameworkCore;
+using Core.Entities;
 
 namespace PlaywrightTestLinuxContainer
 {
@@ -35,41 +36,65 @@ namespace PlaywrightTestLinuxContainer
                 {
                     using SiteTimingContext timingContext = new SiteTimingContext();
 
-                    int countOfAllSites = 1000;
-                    var allSites = timingContext.Sites.ToList().Take(countOfAllSites).ToList();
+                    var allSites = timingContext.Sites
+                         .OrderBy(s => s.Id)
+                        .Select(s => new { s.Url, s.Name })
 
-                    int batchSize = 1;
-                    int numberOfBatches = countOfAllSites / batchSize;
+                        .ToList().ToList();
+                    int countOfAllSites = allSites.Count;
 
-                    using var playwright = await Playwright.CreateAsync();
-                    await using var browser = await playwright.Chromium.LaunchAsync(new() { Headless = true });
+                    var results = new List<ProbeEntity>();
 
-                    using SiteTimingContext siteTimingContext = new SiteTimingContext();
-                    for (int i = 0; i < numberOfBatches; i++)
+                    Parallel.For(0, countOfAllSites, new ParallelOptions() { MaxDegreeOfParallelism = 2 }, (int i) =>
                     {
-                        var sites = allSites.Skip(i * batchSize).Take(batchSize).ToList();
+                        var site = allSites[i];
+                        var data = HelperMethods.ExecuteProbeAsync(site.Url).Result;
+                        results.Add(data);
+                    });
 
-                        List<Task<string>> tasks = new List<Task<string>>();
+                    //foreach (var site in allSites)
+                    //{
+                    //    var probeGuid = await HelperMethods.ExecuteProbeAsync(site.Url);
+                    //}
 
-                        foreach (var site in sites)
-                        {
 
-                            _logger.LogInformation($"Start navigation to http://{site.Name}");
-                            var task = HelperMethods.GetData($"http://{site.Name}", site, browser, siteTimingContext);
-                            tasks.Add(task);
-                        }
+                    //int batchSize = 4;
+                    //int numberOfBatches = countOfAllSites / batchSize;
 
-                        await Task.WhenAll(tasks);
+                    //using var playwright = await Playwright.CreateAsync();
+                    //await using var browser = await playwright.Chromium.LaunchAsync(new() { Headless = true });
 
-                        var results = new List<string>();
+                    //Parallel.ForEach(allSites, new ParallelOptions() { MaxDegreeOfParallelism = 4 }, async site =>
+                    //{
+                    //    var data = await HelperMethods.GetData($"http://{site.Name}", site, null, siteTimingContext);
+                    //});
 
-                        foreach (var task in tasks)
-                        {
-                            results.Add(task.Result);
-                        }
 
-                        var strRes = string.Concat(results);
-                    }
+                    //for (int i = 0; i < numberOfBatches; i++)
+                    //{
+                    //    var sites = allSites.Skip(i * batchSize).Take(batchSize).ToList();
+
+                    //    List<Task<string>> tasks = new List<Task<string>>();
+
+                    //    foreach (var site in sites)
+                    //    {
+
+                    //        _logger.LogInformation($"Start navigation to http://{site.Name}");
+                    //        var task = HelperMethods.GetData($"http://{site.Name}", site, browser);
+                    //        tasks.Add(task);
+                    //    }
+
+                    //    await Task.WhenAll(tasks);
+
+                    //    var results = new List<string>();
+
+                    //    foreach (var task in tasks)
+                    //    {
+                    //        results.Add(task.Result);
+                    //    }
+
+                    //    var strRes = string.Concat(results);
+                    //}
                 }
                 catch (Exception ex)
                 {

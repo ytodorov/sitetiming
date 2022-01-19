@@ -7,6 +7,8 @@ namespace Core.Entities
     {
         public string? SourceIpAddress { get; set; }
 
+        public string? DestinationIpAddress { get; set; }
+
         public bool? IsSuccessfull { get; set; }
 
         public string? ExceptionMessage { get; set; }
@@ -22,6 +24,8 @@ namespace Core.Entities
         public long? TimetakenToGenerateInMs { get; set; }
 
         public string? ScreenshotUrl { get; set; }
+
+        public string? ScreenshotBase64 { get; set; }
 
         public string? VideoUrl { get; set; }
 

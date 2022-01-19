@@ -1,22 +1,24 @@
 ﻿@page "/"
 @using Core.Extensions
 
-  <div class="px-4 py-1 my-1 text-center">
-    <img class="d-block mx-auto mb-4" src="android-chrome-512x512.png" alt="" width="57" height="57">
-    <h1 class="display-5 fw-bold">SiteTiming</h1>
-    <div class="col-lg-6 mx-auto">
-        <p class="lead mb-4">Measure website performance, availability and connectivity.</p>
-      <p>
-           <div>
-  <label for="exampleFormControlInput1" class="form-label">Enter a domain below to check timings</label>
-  <input type="url" class="form-control" id="exampleFormControlInput1" placeholder="facebook.com">
-</div>
-<div>
-          <a href="#" class="btn btn-primary my-2">Check</a>
-     </div>
-        </p>
+<form action="/isitdown">
+    <div class="px-4 py-1 my-1 text-center">
+        <img class="d-block mx-auto mb-4" src="android-chrome-512x512.png" alt="" width="57" height="57">
+        <h1 class="display-5 fw-bold">SiteTiming</h1>
+        <div class="col-lg-6 mx-auto">
+            <p class="lead mb-4">Measure website performance, availability and connectivity.</p>
+            <p>
+                <div>
+                    <label for="exampleFormControlInput1" class="form-label">Enter a domain below to check timings</label>
+                    <input type="text" name="url" class="form-control" id="exampleFormControlInput1" placeholder="facebook.com">
+                </div>
+                <div>
+                     <button type="submit" class="btn btn-primary my-2">Check</button>
+                </div>
+            </p>
+        </div>
     </div>
-  </div>
+</form>
 
 @if (Timings != null)
 {
@@ -35,7 +37,7 @@
                         <div class="d-flex flex-row">
                             @if (t0.Site.FaviconBase64 != null)
                             {
-                                <img  src="@($"{t0.Site.FaviconBase64}")" class="my-1" width="16" height="16">
+                                <img src="@($"{t0.Site.FaviconBase64}")" class="my-1" width="16" height="16">
                             }
                             <h5 class="card-title">@t0.Site.Name</h5>
                         </div>
@@ -48,12 +50,12 @@
             </div>
             <div class="col">
                 <div class="card h-100">
-                    <img src="@($"{t1.Site.ScreenshotBase64}")" class="card-img-top" alt="..."  width="280" height="157">
+                    <img src="@($"{t1.Site.ScreenshotBase64}")" class="card-img-top" alt="..." width="280" height="157">
                     <div class="card-body">
                         <div class="d-flex flex-row">
                             @if (t1.Site.FaviconBase64 != null)
                             {
-                                <img  src="@($"{t1.Site.FaviconBase64}")" class="my-1" width="16" height="16">
+                                <img src="@($"{t1.Site.FaviconBase64}")" class="my-1" width="16" height="16">
                             }
                             <h5 class="card-title">@t1.Site.Name</h5>
                         </div>
@@ -66,12 +68,12 @@
             </div>
             <div class="col">
                 <div class="card h-100">
-                    <img src="@($"{t2.Site.ScreenshotBase64}")" class="card-img-top" alt="..."  width="280" height="157">
+                    <img src="@($"{t2.Site.ScreenshotBase64}")" class="card-img-top" alt="..." width="280" height="157">
                     <div class="card-body">
                         <div class="d-flex flex-row">
-                             @if (t2.Site.FaviconBase64 != null)
+                            @if (t2.Site.FaviconBase64 != null)
                             {
-                                <img  src="@($"{t2.Site.FaviconBase64}")" class="my-1" width="16" height="16">
+                                <img src="@($"{t2.Site.FaviconBase64}")" class="my-1" width="16" height="16">
                             }
                             <h5 class="card-title">@t2.Site.Name</h5>
                         </div>

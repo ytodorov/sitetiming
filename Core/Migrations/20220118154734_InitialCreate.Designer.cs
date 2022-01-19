@@ -12,7 +12,7 @@ using PlaywrightTestLinuxContainer;
 namespace Core.Migrations
 {
     [DbContext(typeof(SiteTimingContext))]
-    [Migration("20220114180753_InitialCreate")]
+    [Migration("20220118154734_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -43,6 +43,9 @@ namespace Core.Migrations
 
                     b.Property<DateTime?>("DateCreated")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("DestinationIpAddress")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<long>("DomComplete")
                         .HasColumnType("bigint");
@@ -106,6 +109,9 @@ namespace Core.Migrations
 
                     b.Property<long>("ResponseStart")
                         .HasColumnType("bigint");
+
+                    b.Property<string>("ScreenshotBase64")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ScreenshotUrl")
                         .HasColumnType("nvarchar(max)");

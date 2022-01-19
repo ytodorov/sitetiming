@@ -41,5 +41,6 @@ app.UseRouting();
 
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
+app.MapFallbackToPage("/isitdown/{*UrlToGetData}", "/_Host");
 
 app.Run();

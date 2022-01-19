@@ -1,4 +1,4 @@
-﻿@page "/history/{*UrlToGetData}"
+﻿@page "/isitdown/{*UrlToGetData}"
 
 @using Core.Extensions
 
@@ -20,6 +20,8 @@ else
                 <th scope="col">DOMContentLoaded</th>
                 <th scope="col">Loaded</th>
                 <th scope="col">Date</th>
+                <th scope="col">Image</th>
+                <th scope="col">Requests</th>
             </tr>
         </thead>
         <tbody>
@@ -31,6 +33,13 @@ else
                     <td>@timing.DOMContentLoadedEventInChrome</td>
                     <td>@timing.LatencyInChrome</td>
                     <td>@timing.DateCreated</td>
+                    <td><img src="@timing.ScreenshotBase64" /></td>
+                    <td>
+                    @*@foreach(var r in timing.Requests)
+                    {
+                        <p>@($"{r.Url} {r.ResponseEnd}")</p>
+                    }*@
+                    </td>
                 </tr>
             }
         </tbody>

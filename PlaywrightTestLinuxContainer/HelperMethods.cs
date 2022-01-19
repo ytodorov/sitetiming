@@ -28,18 +28,43 @@ namespace PlaywrightTestLinuxContainer
         }
 
         public static string? IpAddressOfServer { get; set; }
-        public static async Task<string> GetData(string url, SiteEntity site, IBrowser browser, SiteTimingContext siteTimingContext)
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="url"></param>
+        /// <param name="browser"></param>
+        /// <returns>Probe</returns>
+        public static async Task<ProbeEntity> ExecuteProbeAsync(string url)
         {
+            Console.WriteLine($"Start ExecuteProbeAsync {url} at {DateTime.UtcNow.ToString("O")}");
+
+            using SiteTimingContext siteTimingContext = new SiteTimingContext();
+
+            SiteEntity site = siteTimingContext.Sites.FirstOrDefault(s => s.Url == url);
+            if (site == null)
+            {
+                site = new SiteEntity();
+                site.Url = url;
+                await siteTimingContext.Sites.AddAsync(site);
+                await siteTimingContext.SaveChangesAsync();
+            }
+
             ProbeEntity? probe = new ProbeEntity();
             Stopwatch sw = Stopwatch.StartNew();
+
+            float timeout = (float)TimeSpan.FromMinutes(2).TotalMilliseconds;
+
+            using var playwright = await Playwright.CreateAsync();
+            await using var browser = await playwright.Chromium.LaunchAsync(new() { Headless = true, Timeout = timeout });
             IPage page = await browser.NewPageAsync();
 
             List<RequestEntity> requestsToSave = new List<RequestEntity>();
 
             try
             {
-                page.SetDefaultNavigationTimeout(0);
-                page.SetDefaultTimeout(0);
+                page.SetDefaultNavigationTimeout(timeout);
+                page.SetDefaultTimeout(timeout);
 
                 page.RequestFinished += (obj, request) =>
                 {
@@ -48,8 +73,7 @@ namespace PlaywrightTestLinuxContainer
                     requestsToSave.Add(requestEntity);
                 };
 
-                var response = await page.GotoAsync(url, new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
-                Console.WriteLine($"{sw.ElapsedMilliseconds} finished: var response = await page.GotoAsync(url, new PageGotoOptions {{ WaitUntil = WaitUntilState.DOMContentLoaded }})");
+                var response = await page.GotoAsync(url, new PageGotoOptions { WaitUntil = WaitUntilState.DOMContentLoaded });
 
                 var res = await page.EvaluateAsync(@"var s = '';
                 function f() {
@@ -59,6 +83,26 @@ return s; } f()");
                 var stringResult = res.Value.ToString();
 
                 probe = JsonConvert.DeserializeObject<ProbeEntity>(stringResult);
+
+                if (response != null)
+                {
+                    var ipaddress = await response.ServerAddrAsync();
+                    probe.DestinationIpAddress = ipaddress.IpAddress;
+                }
+
+
+                if (probe.ScreenshotBase64 == null)
+                {
+                    string path = $"{site.Id}.jpeg";
+                    await page.ScreenshotAsync(new PageScreenshotOptions() { Quality = 30, Type = ScreenshotType.Jpeg, Path = path });
+                    using var image = File.OpenRead(path);
+
+                    var base64 = Utils.ConvertImageToBase64(image, "jpeg");
+
+                    probe.ScreenshotBase64 = base64;
+                    //siteTimingContext.Update(site);
+                    File.Delete(path);
+                }
 
                 if (site.ScreenshotBase64 == null)
                 {
@@ -104,8 +148,6 @@ return s; } f()");
                 probe.DOMContentLoadedEventInChrome = probe.DomContentLoadedEventEnd - probe.ConnectStart;
                 probe.LoadEventInChrome = probe.LoadEventEnd - probe.ConnectStart;
                 probe.IsSuccessfull = true;
-
-                Console.WriteLine($"{sw.ElapsedMilliseconds} finished: timings.IsSuccessfull = true;");
             }
             catch (Exception ex)
             {
@@ -123,16 +165,15 @@ return s; } f()");
             probe.TimetakenToGenerateInMs = (long)sw.Elapsed.TotalMilliseconds;
             probe.DateCreated = DateTime.UtcNow;
 
-            
-
             await siteTimingContext.Probes.AddAsync(probe);
             await siteTimingContext.SaveChangesAsync();
 
             foreach (var r in requestsToSave)
             {
                 r.ProbeId = probe.Id;
-                await siteTimingContext.Requests.AddAsync(r);
             }
+
+            await siteTimingContext.Requests.AddRangeAsync(requestsToSave);
 
             try
             {
@@ -140,13 +181,11 @@ return s; } f()");
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Console.WriteLine("Exception:" + ex.Message);
             }
 
-
-
-
-            return probe.ToString();
+            Console.WriteLine($"End ExecuteProbeAsync {url} at {DateTime.UtcNow.ToString("O")}");
+            return probe;
         }
 
         public static void PopulateSitesInDatabaseFromFile()
@@ -163,7 +202,13 @@ return s; } f()");
                     {
                         if (!sitesInDatabase.Any(s => s.Equals(siteInFile, StringComparison.InvariantCultureIgnoreCase)))
                         {
-                            sitesToAdd.Add(new SiteEntity { Name = siteInFile });
+                            var newSite = new SiteEntity { Name = siteInFile };
+                            if (!newSite.Name.StartsWith("http", StringComparison.InvariantCultureIgnoreCase))
+                            {
+                                newSite.Url = $"http://{newSite.Name}";
+                            }
+                            sitesToAdd.Add(newSite);
+                            
                         }
                     }
 
