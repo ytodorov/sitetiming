@@ -13,7 +13,9 @@ namespace SiteTiming.Pages
         
         [Inject]
         public IJSRuntime JsRuntime { get; set; }
-        public string Now { get; set; } = DateTime.Now.ToString("O");
+
+        [Inject]
+        public NavigationManager navManager { get; set; }
 
         public List<ProbeEntity> Timings { get; set; }
 

@@ -1,7 +1,8 @@
 ﻿@page "/"
 @using Core.Extensions
+@using Core.Models
 
-<form action="/isitdown">
+<EditForm Model="@formViewModel" OnValidSubmit="@HandleValidSubmit">
     <div class="px-4 py-1 my-1 text-center">
         <img class="d-block mx-auto mb-4" src="android-chrome-512x512.png" alt="" width="57" height="57">
         <h1 class="display-5 fw-bold">SiteTiming</h1>
@@ -9,16 +10,16 @@
             <p class="lead mb-4">Measure website performance, availability and connectivity.</p>
             <p>
                 <div>
-                    <label for="exampleFormControlInput1" class="form-label">Enter a domain below to check timings</label>
-                    <input type="text" name="url" class="form-control" id="exampleFormControlInput1" placeholder="facebook.com">
+                    <label for="tbCheckUrl" class="form-label">Enter a domain below to check timings</label>
+                    <InputText class="form-control" id="tbCheckUrl" @bind-Value="formViewModel.CheckUrl" />
                 </div>
                 <div>
-                     <button type="submit" class="btn btn-primary my-2">Check</button>
+                    <button type="submit" class="btn btn-primary my-2">Check</button>
                 </div>
             </p>
         </div>
     </div>
-</form>
+</EditForm>
 
 @if (Timings != null)
 {
@@ -44,7 +45,7 @@
                         <p class="card-text">Latency: @t0.LatencyInChrome DomLoaded: @t0.DOMContentLoadedEventInChrome</p>
                     </div>
                     <div class="card-footer">
-                        <small class="text-muted">Last updated @t0.DateCreated.GetValueOrDefault().TimeAgo()</small>
+                        <small class="text-muted">Last updated @t0.DateCreated.GetValueOrDefault().TimeAgo() <a target="_blank" href="@($"{navManager.BaseUri}{t0.Site.Name}")">details</a></small>
                     </div>
                 </div>
             </div>
@@ -62,7 +63,7 @@
                         <p class="card-text">Latency: @t1.LatencyInChrome DomLoaded: @t1.DOMContentLoadedEventInChrome</p>
                     </div>
                     <div class="card-footer">
-                        <small class="text-muted">Last updated @t1.DateCreated.GetValueOrDefault().TimeAgo()</small>
+                        <small class="text-muted">Last updated @t1.DateCreated.GetValueOrDefault().TimeAgo() <a target="_blank" href="@($"{navManager.BaseUri}{t1.Site.Name}")">details</a></small>
                     </div>
                 </div>
             </div>
@@ -80,7 +81,7 @@
                         <p class="card-text">Latency: @t2.LatencyInChrome DomLoaded: @t2.DOMContentLoadedEventInChrome</p>
                     </div>
                     <div class="card-footer">
-                        <small class="text-muted">Last updated @t2.DateCreated.GetValueOrDefault().TimeAgo()</small>
+                        <small class="text-muted">Last updated @t2.DateCreated.GetValueOrDefault().TimeAgo() <a target="_blank" href="@($"{navManager.BaseUri}{t2.Site.Url}")">details</a></small>
                     </div>
                 </div>
             </div>
@@ -89,7 +90,34 @@
 }
 else
 {
-    <span class="sr-only">Loading...</span>
-    <div class="spinner-border" role="status">
+
+
+    <div class="row row-cols-1 row-cols-md-3 g-4 m-2">
+        <div class="col">
+            <span class="sr-only">Loading...</span>
+            <div class="spinner-border" role="status">
+            </div>
+        </div>
+        <div class="col">
+            <span class="sr-only">Loading...</span>
+            <div class="spinner-border" role="status">
+            </div>
+        </div>
+        <div class="col">
+            <span class="sr-only">Loading...</span>
+            <div class="spinner-border" role="status">
+            </div>
+        </div>
     </div>
+}
+@code {
+    private NavigateToProbeViewModel formViewModel = new();
+
+    private void HandleValidSubmit()
+    {
+        navManager.NavigateTo($"{navManager.BaseUri}{formViewModel.CheckUrl}");
+        //Logger.LogInformation("HandleValidSubmit called");
+
+        // Process the valid form
+    }
 }

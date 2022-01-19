@@ -2,7 +2,9 @@
 
 @using Core.Extensions
 
-history page of @UrlToGetData 
+history page of @UrlToGetData
+
+
 
 @if (Probes == null)
 {
@@ -12,6 +14,32 @@ history page of @UrlToGetData
 }
 else
 {
+    <div class="row row-cols-1 row-cols-md-3 g-4 m-2">
+        <div class="col">
+        </div>
+        <div class="col">
+            <div class="card h-100">
+                <img src="@($"{SiteEntity.ScreenshotBase64}")" class="card-img-top" alt="..." width="280" height="157">
+                <div class="card-body">
+
+                    <div class="d-flex flex-row">
+                        @if (SiteEntity.FaviconBase64 != null)
+                        {
+                            <img src="@($"{SiteEntity.FaviconBase64}")" class="my-1" width="16" height="16">
+                        }
+                        <h5 class="card-title">@SiteEntity.Name - @SiteEntity.Title</h5>
+                    </div>
+                    <p class="card-text">Latency: @Probes.FirstOrDefault().LatencyInChrome DomLoaded: @Probes.FirstOrDefault().DOMContentLoadedEventInChrome</p>
+                </div>
+                <div class="card-footer">
+                    <small class="text-muted">Last updated @SiteEntity.DateCreated.GetValueOrDefault().TimeAgo()</small>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+        </div>
+    </div>
+
     <table class="table">
         <thead>
             <tr>
@@ -31,14 +59,14 @@ else
                     <th scope="row">@(Probes.IndexOf(timing) + 1)</th>
                     <td>@timing.LatencyInChrome</td>
                     <td>@timing.DOMContentLoadedEventInChrome</td>
-                    <td>@timing.LatencyInChrome</td>
+                    <td>@timing.LoadEventInChrome</td>
                     <td>@timing.DateCreated</td>
                     <td><img src="@timing.ScreenshotBase64" /></td>
                     <td>
-                    @*@foreach(var r in timing.Requests)
-                    {
-                        <p>@($"{r.Url} {r.ResponseEnd}")</p>
-                    }*@
+                        @*@foreach(var r in timing.Requests)
+                            {
+                            <p>@($"{r.Url} {r.ResponseEnd}")</p>
+                            }*@
                     </td>
                 </tr>
             }
