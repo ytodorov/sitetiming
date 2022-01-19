@@ -1,12 +1,12 @@
-﻿@page "/isitdown/{*UrlToGetData}"
+﻿@page "/{*UrlToGetData}"
 
 @using Core.Extensions
 
-history page of @UrlToGetData
+history page of @UrlToGetData 
 
 @if (Timings == null)
 {
-    <span class="sr-only">Loading...</span>
+    <span class="sr-only"> Loading...</span>
     <div class="spinner-border" role="status">
     </div>
 }

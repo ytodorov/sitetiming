@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Playwright;
 using PlaywrightTestLinuxContainer;
 using System.Net;
 
@@ -19,6 +20,14 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<SiteTimingContext>();
 builder.Services.AddHostedService<TimedHostedService>();
+builder.Services.AddSingleton<IBrowser>((s) =>
+{
+    var playwright = Playwright.CreateAsync().Result;
+    var browser = playwright.Chromium.LaunchAsync(
+        new() { Headless = true, Timeout = (float)TimeSpan.FromMinutes(2).TotalMilliseconds }).Result;
+
+    return browser;
+});
 
 // The following line enables Application Insights telemetry collection.
 builder.Services.AddApplicationInsightsTelemetry("e376512e-2b93-4864-bcf3-b4c103a3c374");

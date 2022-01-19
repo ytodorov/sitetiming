@@ -35,9 +35,8 @@ namespace PlaywrightTestLinuxContainer
         /// <param name="url"></param>
         /// <param name="browser"></param>
         /// <returns>Probe</returns>
-        public static async Task<ProbeEntity> ExecuteProbeAsync(string url)
+        public static async Task<ProbeEntity> ExecuteProbeAsync(string url, IBrowser browser)
         {
-            Console.WriteLine($"Start ExecuteProbeAsync {url} at {DateTime.UtcNow.ToString("O")}");
 
             using SiteTimingContext siteTimingContext = new SiteTimingContext();
 
@@ -55,9 +54,17 @@ namespace PlaywrightTestLinuxContainer
 
             float timeout = (float)TimeSpan.FromMinutes(2).TotalMilliseconds;
 
-            using var playwright = await Playwright.CreateAsync();
-            await using var browser = await playwright.Chromium.LaunchAsync(new() { Headless = true, Timeout = timeout });
-            IPage page = await browser.NewPageAsync();
+            //using var playwright = await Playwright.CreateAsync();
+            //await using var browser = await playwright.Chromium.LaunchAsync(new() { Headless = true, Timeout = timeout });
+
+            BrowserNewPageOptions browserNewPageOptionsNew = new BrowserNewPageOptions();
+            browserNewPageOptionsNew.IgnoreHTTPSErrors = true;
+            browserNewPageOptionsNew.BypassCSP = true;
+            // detect headless brower problem
+            // https://github.com/puppeteer/puppeteer/issues/3656#issuecomment-447111512
+            // This fix this problem
+            browserNewPageOptionsNew.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.71 Safari/537.36"; //"{ userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36' }"
+            IPage page = await browser.NewPageAsync(browserNewPageOptionsNew);
 
             List<RequestEntity> requestsToSave = new List<RequestEntity>();
 
@@ -66,14 +73,27 @@ namespace PlaywrightTestLinuxContainer
                 page.SetDefaultNavigationTimeout(timeout);
                 page.SetDefaultTimeout(timeout);
 
-                page.RequestFinished += (obj, request) =>
-                {
-                    var requestEntity = Mapper.Map<RequestEntity>(request.Timing);
-                    Mapper.Map(request, requestEntity, RequestType, typeof(RequestEntity));
-                    requestsToSave.Add(requestEntity);
-                };
+                //page.RequestFinished += (obj, request) =>
+                //{
+                //    var requestEntity = Mapper.Map<RequestEntity>(request.Timing);
+                //    Mapper.Map(request, requestEntity, RequestType, typeof(RequestEntity));
+                //    requestsToSave.Add(requestEntity);
+                //};
 
-                var response = await page.GotoAsync(url, new PageGotoOptions { WaitUntil = WaitUntilState.DOMContentLoaded });
+                // detect headless brower problem
+                // https://github.com/puppeteer/puppeteer/issues/3656#issuecomment-447111512
+
+                //page.Request += async (obj, request) =>
+                //{
+                //    var allHeaders = await request.AllHeadersAsync();
+                //    allHeaders.Clear();
+                //    request.Headers.Clear();
+                //};
+
+                var response = await page.GotoAsync(url, new PageGotoOptions { WaitUntil = WaitUntilState.Load });
+                // Important for navigation error
+                var selector = await page.WaitForSelectorAsync("html");
+                //var allHeaders = await response?.AllHeadersAsync();
 
                 var res = await page.EvaluateAsync(@"var s = '';
                 function f() {
@@ -90,19 +110,23 @@ return s; } f()");
                     probe.DestinationIpAddress = ipaddress.IpAddress;
                 }
 
+                // Too much data - save only in blob storage
 
-                if (probe.ScreenshotBase64 == null)
-                {
-                    string path = $"{site.Id}.jpeg";
-                    await page.ScreenshotAsync(new PageScreenshotOptions() { Quality = 30, Type = ScreenshotType.Jpeg, Path = path });
-                    using var image = File.OpenRead(path);
+                //if (probe.ScreenshotBase64 == null)
+                //{
+                //    string path = $"{site.Id}.jpeg";
+                //    await page.ScreenshotAsync(new PageScreenshotOptions() { Quality = 30, Type = ScreenshotType.Jpeg, Path = path });
+                //    using var image = File.OpenRead(path);
 
-                    var base64 = Utils.ConvertImageToBase64(image, "jpeg");
+                //    var base64 = Utils.ConvertImageToBase64(image, "jpeg");
 
-                    probe.ScreenshotBase64 = base64;
-                    //siteTimingContext.Update(site);
-                    File.Delete(path);
-                }
+                //    probe.ScreenshotBase64 = base64;
+                //    //siteTimingContext.Update(site);
+                //    File.Delete(path);
+                //}
+
+                var title = await page.TitleAsync();
+                site.Title = title;
 
                 if (site.ScreenshotBase64 == null)
                 {
@@ -151,6 +175,7 @@ return s; } f()");
             }
             catch (Exception ex)
             {
+                Console.WriteLine("Exception:" + ex.Message);
                 probe.IsSuccessfull = false;
                 probe.ExceptionMessage = ex.Message + ex.InnerException?.Message;
                 probe.ExceptionStackTrace = ex.StackTrace + ex.InnerException?.StackTrace;
@@ -184,7 +209,7 @@ return s; } f()");
                 Console.WriteLine("Exception:" + ex.Message);
             }
 
-            Console.WriteLine($"End ExecuteProbeAsync {url} at {DateTime.UtcNow.ToString("O")}");
+            Console.WriteLine($"{sw.ElapsedMilliseconds} ms. taken for {url}");
             return probe;
         }
 
@@ -196,7 +221,7 @@ return s; } f()");
                 if (!context.Sites.Any())
                 {
                     var sitesInDatabase = context.Sites.Select(s => s.Name).ToList();
-                    var sitesInFile = GetSitesFromFile().Take(1000).ToList();
+                    var sitesInFile = GetSitesFromFile().Take(10000).ToList();
                     var sitesToAdd = new List<SiteEntity>();
                     foreach (var siteInFile in sitesInFile)
                     {

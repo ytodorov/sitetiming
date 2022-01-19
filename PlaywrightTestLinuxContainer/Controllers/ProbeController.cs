@@ -16,10 +16,13 @@ namespace PlaywrightTestLinuxContainer.Controllers
 
         private readonly ILogger<TimingController> _logger;
 
-        public ProbeController(ILogger<TimingController> logger, SiteTimingContext timingContext)
+        private IBrowser browser;
+
+        public ProbeController(ILogger<TimingController> logger, SiteTimingContext timingContext, IBrowser browser)
         {
             _logger = logger;
             this.timingContext = timingContext;
+            this.browser = browser;
         }
 
         [HttpGet(Name = "GetProbe")]
@@ -35,7 +38,7 @@ namespace PlaywrightTestLinuxContainer.Controllers
                 
                 if (url != null)
                 {
-                    result = await HelperMethods.ExecuteProbeAsync(url);
+                    result = await HelperMethods.ExecuteProbeAsync(url, browser);
                     result.Site = null;
                     result.Requests = null;
                 }

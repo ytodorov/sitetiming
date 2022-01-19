@@ -11,6 +11,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddSingleton<WeatherForecastService>();
 builder.Services.AddDbContext<SiteTimingContext>();
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddResponseCompression(options =>
 {
@@ -40,7 +41,8 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.MapBlazorHub();
-app.MapFallbackToPage("/_Host");
-app.MapFallbackToPage("/isitdown/{*UrlToGetData}", "/_Host");
+//app.MapFallbackToPage("/_Host");
+app.MapFallbackToPage("/{*UrlToGetData}", "/_Host");
+
 
 app.Run();

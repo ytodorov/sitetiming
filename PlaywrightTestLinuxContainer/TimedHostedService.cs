@@ -9,10 +9,12 @@ namespace PlaywrightTestLinuxContainer
         private int executionCount = 0;
         private readonly ILogger<TimedHostedService> _logger;
         private Timer _timer = null!;
+        private IBrowser browser;
 
-        public TimedHostedService(ILogger<TimedHostedService> logger)
+        public TimedHostedService(ILogger<TimedHostedService> logger, IBrowser browser)
         {
             _logger = logger;
+            this.browser = browser;
         }
 
         public Task StartAsync(CancellationToken stoppingToken)
@@ -45,10 +47,10 @@ namespace PlaywrightTestLinuxContainer
 
                     var results = new List<ProbeEntity>();
 
-                    Parallel.For(0, countOfAllSites, new ParallelOptions() { MaxDegreeOfParallelism = 2 }, (int i) =>
+                    Parallel.For(0, countOfAllSites, new ParallelOptions() { MaxDegreeOfParallelism = 4 }, (int i) =>
                     {
                         var site = allSites[i];
-                        var data = HelperMethods.ExecuteProbeAsync(site.Url).Result;
+                        var data = HelperMethods.ExecuteProbeAsync(site.Url, browser).Result;
                         results.Add(data);
                     });
 
