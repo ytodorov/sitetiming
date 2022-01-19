@@ -7,7 +7,7 @@ using System.Net;
 
 namespace SiteTiming.Pages
 {
-    public partial class IsItDown
+    public partial class CatchAllPage
     {
         [Parameter]
         //[SupplyParameterFromQuery(Name = "url")]
@@ -29,7 +29,7 @@ namespace SiteTiming.Pages
         [Inject]
         public IHttpContextAccessor httpContextAccessor { get; set; }
 
-        public List<ProbeEntity> Timings { get; set; }
+        public List<ProbeEntity> Probes { get; set; }
 
         protected override async Task OnInitializedAsync()
         {
@@ -55,7 +55,7 @@ namespace SiteTiming.Pages
 
 
 
-                    Timings = await SiteTimingContext.Probes
+                    Probes = await SiteTimingContext.Probes
                         .Include(s => s.Site)
                         //.Include(s => s.Requests)
                         .Where(s => s.Site.Url == url)

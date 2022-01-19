@@ -4,7 +4,7 @@
 
 history page of @UrlToGetData 
 
-@if (Timings == null)
+@if (Probes == null)
 {
     <span class="sr-only"> Loading...</span>
     <div class="spinner-border" role="status">
@@ -25,10 +25,10 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var timing in Timings)
+            @foreach (var timing in Probes)
             {
                 <tr>
-                    <th scope="row">@(Timings.IndexOf(timing) + 1)</th>
+                    <th scope="row">@(Probes.IndexOf(timing) + 1)</th>
                     <td>@timing.LatencyInChrome</td>
                     <td>@timing.DOMContentLoadedEventInChrome</td>
                     <td>@timing.LatencyInChrome</td>

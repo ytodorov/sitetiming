@@ -90,7 +90,7 @@ namespace PlaywrightTestLinuxContainer
                 //    request.Headers.Clear();
                 //};
 
-                var response = await page.GotoAsync(url, new PageGotoOptions { WaitUntil = WaitUntilState.Load });
+                var response = await page.GotoAsync(url, new PageGotoOptions { WaitUntil = WaitUntilState.DOMContentLoaded });
                 // Important for navigation error
                 var selector = await page.WaitForSelectorAsync("html");
                 //var allHeaders = await response?.AllHeadersAsync();
@@ -131,7 +131,7 @@ return s; } f()");
                 if (site.ScreenshotBase64 == null)
                 {
                     string path = $"{site.Id}.jpeg";
-                    await page.ScreenshotAsync(new PageScreenshotOptions() { Quality = 30, Type = ScreenshotType.Jpeg, Path = path });
+                    await page.ScreenshotAsync(new PageScreenshotOptions() { Quality = 50, Type = ScreenshotType.Jpeg, Path = path });
                     using var image = File.OpenRead(path);
 
                     var base64 = Utils.ConvertImageToBase64(image, "jpeg");
