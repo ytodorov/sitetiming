@@ -90,7 +90,7 @@ namespace PlaywrightTestLinuxContainer
                 //    request.Headers.Clear();
                 //};
 
-                var response = await page.GotoAsync(url, new PageGotoOptions { WaitUntil = WaitUntilState.DOMContentLoaded });
+                var response = await page.GotoAsync(url, new PageGotoOptions { WaitUntil = WaitUntilState.Load });
                 // Important for navigation error
                 var selector = await page.WaitForSelectorAsync("html");
                 //var allHeaders = await response?.AllHeadersAsync();

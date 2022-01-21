@@ -1,4 +1,5 @@
 ﻿using Core.Entities;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Core.Entities
 {
@@ -14,5 +15,9 @@ namespace Core.Entities
         public string? FaviconBase64 { get; set; }
 
         public List<ProbeEntity>? Probes { get; set; }
+
+        [NotMapped]
+        public ProbeEntity? LastProbe { get; set; }
+
     }
 }

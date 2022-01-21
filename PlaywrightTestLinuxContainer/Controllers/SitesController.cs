@@ -16,12 +16,10 @@ namespace PlaywrightTestLinuxContainer.Controllers
         public SitesController(IServiceProvider serviceProvider) : base(serviceProvider) { }
 
         [HttpGet(Name = "GetSites")]
-        public async Task<IActionResult> Get(int take = int.MaxValue, string? url = null)
+        public async Task<IActionResult> Get(int take = 10, string? url = null)
         {
-            var query = SiteTimingContext.Sites
-                .Include(s => s.Probes)
-                .OrderByDescending(s => s.Id)
-                .Take(take);
+            var query = SiteTimingContext.Sites.AsQueryable();
+              
 
             if (!string.IsNullOrEmpty(url) && !url.StartsWith("http"))
             {
@@ -33,10 +31,21 @@ namespace PlaywrightTestLinuxContainer.Controllers
                 query = query.Where(s => s.Url == url);
             }
 
+            query = query.Include(s => s.Probes)
+                .OrderByDescending(s => s.Id)
+                .Take(take);
+
             var result = await query
                 .ToListAsync();
 
-            var jr = new JsonResult(result, JsonSerializerOptions);
+            result = result.Select(result =>
+            {
+                result.LastProbe = result.Probes?.OrderByDescending(s => s.Id)?.FirstOrDefault();
+                return result;
+
+            }).ToList();
+
+            var jr = new JsonResult(result);
             return jr;
         }
 

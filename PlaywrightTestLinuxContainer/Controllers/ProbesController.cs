@@ -15,14 +15,28 @@ namespace PlaywrightTestLinuxContainer.Controllers
         public ProbesController(IServiceProvider serviceProvider) : base(serviceProvider) { }
 
         [HttpGet(Name = "GetProbes")]
-        public async Task<IActionResult> Get(int take = int.MaxValue)
+        public async Task<IActionResult> Get(int take = 10, string? siteUrl = null)
         {
-            var result = await SiteTimingContext.Probes
-                .Take(take)
-                .Include(s => s.Site)
+            if (!string.IsNullOrEmpty(siteUrl) && !siteUrl.StartsWith("http"))
+            {
+                siteUrl = $"http://{siteUrl}";
+            }
+
+            var query = SiteTimingContext.Probes.AsQueryable();               
+
+            if (!string.IsNullOrEmpty(siteUrl))
+            {
+                query = query.Where(s => s.Site.Url == siteUrl);
+            }
+
+            query = query.Take(take);
+            query = query.Include(s => s.Site);
+
+
+            var result = await query
                 .ToListAsync();
 
-            var jr = new JsonResult(result, JsonSerializerOptions);
+            var jr = new JsonResult(result);
             return jr;
         }
 
