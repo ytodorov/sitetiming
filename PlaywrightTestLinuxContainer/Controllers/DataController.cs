@@ -16,9 +16,9 @@ namespace PlaywrightTestLinuxContainer.Controllers
     {
         private SiteTimingContext timingContext;
 
-        private readonly ILogger<TimingController> _logger;
+        private readonly ILogger<ProbesController> _logger;
 
-        public DataController(ILogger<TimingController> logger, SiteTimingContext timingContext)
+        public DataController(ILogger<ProbesController> logger, SiteTimingContext timingContext)
         {
             _logger = logger;
             this.timingContext = timingContext;

@@ -9,8 +9,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlaywrightTestLinuxContaine
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SiteTiming", "SiteTiming\SiteTiming.csproj", "{116E0B12-07B1-4110-AD82-089E5EC1EAFC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TelerikBlazorApp1", "TelerikBlazorApp1\TelerikBlazorApp1.csproj", "{8100E15D-611C-44CE-AD92-2D370CAE1036}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,10 +27,6 @@ Global
 		{116E0B12-07B1-4110-AD82-089E5EC1EAFC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{116E0B12-07B1-4110-AD82-089E5EC1EAFC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{116E0B12-07B1-4110-AD82-089E5EC1EAFC}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8100E15D-611C-44CE-AD92-2D370CAE1036}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8100E15D-611C-44CE-AD92-2D370CAE1036}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8100E15D-611C-44CE-AD92-2D370CAE1036}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8100E15D-611C-44CE-AD92-2D370CAE1036}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

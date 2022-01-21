@@ -9,14 +9,6 @@ namespace SiteTiming.Pages
 {
     public partial class CatchAllPage
     {
-        [Parameter]
-        //[SupplyParameterFromQuery(Name = "url")]
-        public string? UrlToGetData { get; set; }
-
-        [Parameter]
-        [SupplyParameterFromQuery(Name = "url")]
-        public string? UrlFromQuery { get; set; }
-
         [Inject]
         public IJSRuntime JsRuntime { get; set; }
 
@@ -24,40 +16,42 @@ namespace SiteTiming.Pages
         public SiteTimingContext SiteTimingContext { get; set; }
 
         [Inject]
-        public NavigationManager navManager { get; set; }
+        public NavigationManager NavigationManager { get; set; }
 
         [Inject]
-        public IHttpContextAccessor httpContextAccessor { get; set; }
+        public IHttpContextAccessor HttpContextAccessor { get; set; }
+
+        [Inject]
+        public HttpClient HttpClient { get; set; }
+
+        [Parameter]
+        //[SupplyParameterFromQuery(Name = "q")]
+        public string? UrlToGetData { get; set; }
 
         public List<ProbeEntity> Probes { get; set; }
 
         public SiteEntity SiteEntity { get; set; }
 
+        public string ExceptionMessage { get; set; }
+
         protected override async Task OnInitializedAsync()
         {
-            //var isInitializedProp = JsRuntime.GetType().GetProperties().FirstOrDefault(f => f.Name == "IsInitialized");
-            //bool isJsInitialized = (bool)isInitializedProp.GetValue(JsRuntime);
-            //if (isJsInitialized == true)
-            //{
+            try
+            {
+                var url = UrlToGetData; // NavigationManager.Uri.Replace(NavigationManager.BaseUri, string.Empty);
 
-                if (UrlToGetData != null
-                && !UrlToGetData.Contains("_blazor/initializers", StringComparison.InvariantCultureIgnoreCase)
-                && !UrlToGetData.Contains("favicon.ico", StringComparison.InvariantCultureIgnoreCase))
+                if (PageHelper.IsPageInitializedYordan(JsRuntime, NavigationManager))
                 {
+                    //string url = UrlToGetData;
 
-                    string url = UrlToGetData;
+                    //url = NavigationManager.Uri.Replace(NavigationManager.BaseUri, string.Empty);
                     if (!url.StartsWith("http"))
                     {
                         url = $"http://{url}";
                     }
-                    using HttpClient client = new HttpClient() { };
 
-                    //HelperMethods.IpAddressOfServer = new WebClient().DownloadString("http://icanhazip.com").Replace("\\r\\n", "").Replace("\\n", "").Trim();
-
-                    var response = await client.GetAsync($"http://y-pl.azurewebsites.net/Probe?url={url}");
-                    var probeEntity = await response.Content.ReadFromJsonAsync<ProbeEntity>(new System.Text.Json.JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
-
-
+                    var response = HttpClient.GetAsync($"http://y-pl.azurewebsites.net/Probe?url={url}").Result;
+                    var probeEntity = response.Content.ReadFromJsonAsync<ProbeEntity>(new System.Text.Json.JsonSerializerOptions() { PropertyNameCaseInsensitive = true }).Result;
 
                     Probes = await SiteTimingContext.Probes
                         .Include(s => s.Site)
@@ -68,22 +62,39 @@ namespace SiteTiming.Pages
 
                     SiteEntity = Probes.FirstOrDefault().Site;
                 }
-            //}
+            }
+            catch (Exception ex)
+            {
+                ExceptionMessage = ex.Message + ex.StackTrace;
+            }
 
             await base.OnInitializedAsync();
         }
         //protected override void OnInitialized()
         //{
-        //    var isInitializedProp = JsRuntime.GetType().GetProperties().FirstOrDefault(f => f.Name == "IsInitialized");
-        //    bool isJsInitialized = (bool)isInitializedProp.GetValue(JsRuntime);
-        //    if (isJsInitialized == true)
+        //    var url = NavigationManager.Uri.Replace(NavigationManager.BaseUri, string.Empty);
+           
+        //    if (PageHelper.IsPageInitializedYordan(JsRuntime, NavigationManager))
         //    {
-        //        Timings = SiteTimingContext.Probes
+        //        //string url = UrlToGetData;
+
+        //        //url = NavigationManager.Uri.Replace(NavigationManager.BaseUri, string.Empty);
+        //        if (!url.StartsWith("http"))
+        //        {
+        //            url = $"http://{url}";
+        //        }
+
+        //        var response = HttpClient.GetAsync($"http://y-pl.azurewebsites.net/Probe?url={url}").Result;
+        //        var probeEntity = response.Content.ReadFromJsonAsync<ProbeEntity>(new System.Text.Json.JsonSerializerOptions() { PropertyNameCaseInsensitive = true }).Result;
+
+        //        Probes = SiteTimingContext.Probes
         //            .Include(s => s.Site)
-        //            .Include(s => s.Requests)
-        //            .Where(s => s.Site.Name == UrlToGetData)
+        //            //.Include(s => s.Requests)
+        //            .Where(s => s.Site.Url == url)
         //           .OrderByDescending(s => s.DateCreated)
         //           .ToList();
+
+        //        SiteEntity = Probes.FirstOrDefault().Site;
         //    }
 
         //    base.OnInitialized();

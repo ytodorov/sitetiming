@@ -29,21 +29,32 @@ builder.Services.AddSingleton<IBrowser>((s) =>
     return browser;
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(
+        "AllowClient",
+        policy => policy
+    ?.SetIsOriginAllowedToAllowWildcardSubdomains()
+    ?.AllowAnyOrigin()
+    ?.AllowAnyHeader()
+    ?.AllowAnyMethod()
+    ?.SetIsOriginAllowedToAllowWildcardSubdomains()
+    ?.SetPreflightMaxAge(TimeSpan.FromMinutes(20)));
+});
+
 // The following line enables Application Insights telemetry collection.
 builder.Services.AddApplicationInsightsTelemetry("e376512e-2b93-4864-bcf3-b4c103a3c374");
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-//if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 
-app.UseAuthorization();
+//app.UseAuthorization();
+
+app.UseCors("AllowClient");
 
 app.MapControllers();
 

@@ -12,16 +12,11 @@ namespace PlaywrightTestLinuxContainer.Controllers
     [Route("[controller]")]
     public class ProbeController : ControllerBase
     {
-        private SiteTimingContext timingContext;
-
-        private readonly ILogger<TimingController> _logger;
 
         private IBrowser browser;
 
-        public ProbeController(ILogger<TimingController> logger, SiteTimingContext timingContext, IBrowser browser)
+        public ProbeController(ILogger<ProbesController> logger, IBrowser browser)
         {
-            _logger = logger;
-            this.timingContext = timingContext;
             this.browser = browser;
         }
 

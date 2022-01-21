@@ -1,11 +1,10 @@
-﻿@page "/{*UrlToGetData}"
-
+﻿@page "/sites/{*UrlToGetData}"
 @using Core.Extensions
 
 history page of @UrlToGetData
 
 
-
+@ExceptionMessage
 @if (Probes == null)
 {
     <span class="sr-only"> Loading...</span>
@@ -32,7 +31,7 @@ else
                     <p class="card-text">Latency: @Probes.FirstOrDefault().LatencyInChrome DomLoaded: @Probes.FirstOrDefault().DOMContentLoadedEventInChrome</p>
                 </div>
                 <div class="card-footer">
-                    <small class="text-muted">Last updated @SiteEntity.DateCreated.GetValueOrDefault().TimeAgo()</small>
+                    <small class="text-muted">Last updated @Probes.FirstOrDefault().DateCreated.GetValueOrDefault().TimeAgo()</small>
                 </div>
             </div>
         </div>
