@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Playwright;
 using Newtonsoft.Json;
@@ -30,6 +31,17 @@ builder.Services.AddSingleton<IBrowser>((s) =>
     return browser;
 });
 
+builder.Services.AddResponseCompression(options =>
+{
+    options.EnableForHttps = true;
+    options.Providers.Clear();
+    options.Providers.Add<BrotliCompressionProvider>();
+    options.Providers.Add<GzipCompressionProvider>();
+
+    var mimeTypes = ResponseCompressionDefaults.MimeTypes;
+    options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new[] { "document", "text/html", "image/x-icon" });
+});
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(
@@ -52,6 +64,8 @@ app.UseSwagger();
 app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
+
+app.UseResponseCompression();
 
 //app.UseAuthorization();
 

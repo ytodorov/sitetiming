@@ -16,7 +16,7 @@ namespace PlaywrightTestLinuxContainer.Controllers
         public SitesController(IServiceProvider serviceProvider) : base(serviceProvider) { }
 
         [HttpGet(Name = "GetSites")]
-        public async Task<IActionResult> Get(int take = 10, string? url = null)
+        public async Task<List<SiteEntity>> Get(int take = 10, string? url = null)
         {
             var query = SiteTimingContext.Sites.AsQueryable();
               
@@ -45,8 +45,7 @@ namespace PlaywrightTestLinuxContainer.Controllers
 
             }).ToList();
 
-            var jr = new JsonResult(result);
-            return jr;
+            return result;
         }
 
     }

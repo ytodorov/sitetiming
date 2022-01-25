@@ -11,6 +11,10 @@ namespace Core.Extensions
         public static string TimeAgo(this DateTime dateTimeInUtc)
         {
             string result = string.Empty;
+            if (dateTimeInUtc == default)
+            {
+                return result;
+            }
             var timeSpan = DateTime.UtcNow.Subtract(dateTimeInUtc);
 
             if (timeSpan <= TimeSpan.FromSeconds(60))

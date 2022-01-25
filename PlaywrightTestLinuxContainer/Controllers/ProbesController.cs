@@ -15,7 +15,7 @@ namespace PlaywrightTestLinuxContainer.Controllers
         public ProbesController(IServiceProvider serviceProvider) : base(serviceProvider) { }
 
         [HttpGet(Name = "GetProbes")]
-        public async Task<IActionResult> Get(int take = 10, string? siteUrl = null)
+        public async Task<List<ProbeEntity>> Get(int take = 10, string? siteUrl = null)
         {
             if (!string.IsNullOrEmpty(siteUrl) && !siteUrl.StartsWith("http"))
             {
@@ -29,15 +29,15 @@ namespace PlaywrightTestLinuxContainer.Controllers
                 query = query.Where(s => s.Site.Url == siteUrl);
             }
 
-            query = query.Take(take);
+            query = query.Take(take).OrderByDescending(s => s.Id);
             query = query.Include(s => s.Site);
 
 
             var result = await query
                 .ToListAsync();
 
-            var jr = new JsonResult(result);
-            return jr;
+            //var jr = new JsonResult(result);
+            return result;
         }
 
        
