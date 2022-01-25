@@ -1,6 +1,12 @@
+using GraphQL.MicrosoftDI;
+using GraphQL.Server;
+using GraphQL.Server.Ui.Playground;
+using GraphQL.Types;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Playwright;
+using Mitsubishi.MCMachinery.Core.GraphQL;
+using Mitsubishi.MCMachinery.Core.GraphQL.Types;
 using Newtonsoft.Json;
 using PlaywrightTestLinuxContainer;
 using System.Net;
@@ -58,10 +64,18 @@ builder.Services.AddCors(options =>
 // The following line enables Application Insights telemetry collection.
 builder.Services.AddApplicationInsightsTelemetry("e376512e-2b93-4864-bcf3-b4c103a3c374");
 
+ConfigureGraphQL(builder.Services);
+
 var app = builder.Build();
 
 app.UseSwagger();
 app.UseSwaggerUI();
+
+// add http for Schema at default url /graphql
+app.UseGraphQL<ISchema>();
+
+// use graphql-playground at default url /ui/playground
+app.UseGraphQLPlayground(new PlaygroundOptions() { SchemaPollingEnabled = false });
 
 app.UseHttpsRedirection();
 
@@ -76,3 +90,29 @@ app.MapControllers();
 app.MapGet("/", (Func<string>)(() => $"It is working on {Environment.MachineName} {Environment.OSVersion}"));
 
 app.Run();
+
+void ConfigureGraphQL(IServiceCollection services)
+{
+    services.AddSingleton<StarWarsData>();
+    services.AddSingleton<StarWarsQuery>();
+    services.AddSingleton<StarWarsMutation>();
+    services.AddSingleton<HumanType>();
+    services.AddSingleton<HumanInputType>();
+    services.AddSingleton<DroidType>();
+    services.AddSingleton<CharacterInterface>();
+    services.AddSingleton<EpisodeEnum>();
+    services.AddSingleton<ISchema, StarWarsSchema>();
+
+    services.AddLogging(builder => builder.AddConsole());
+    services.AddHttpContextAccessor();
+
+    //services.AddGraphQL();
+
+    services.AddGraphQL(options =>
+    {
+        options.EnableMetrics = true;
+    })
+    .AddErrorInfoProvider(opt => opt.ExposeExceptionStackTrace = true)
+    .AddSystemTextJson()
+    .AddUserContextBuilder(httpContext => new GraphQLUserContext { User = httpContext.User });
+}

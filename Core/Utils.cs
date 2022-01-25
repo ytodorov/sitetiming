@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Core
+﻿namespace Core
 {
     public static class Utils
     {
@@ -16,5 +10,7 @@ namespace Core
             string imageUrl = $"data:image/{type};base64," + base64String;
             return imageUrl;
         }
+
+        
     }
 }
