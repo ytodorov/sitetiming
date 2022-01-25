@@ -1,3 +1,4 @@
+using Core.GraphQL.Types;
 using GraphQL.MicrosoftDI;
 using GraphQL.Server;
 using GraphQL.Server.Ui.Playground;
@@ -99,6 +100,11 @@ void ConfigureGraphQL(IServiceCollection services)
     services.AddSingleton<HumanType>();
     services.AddSingleton<HumanInputType>();
     services.AddSingleton<DroidType>();
+
+    services.AddSingleton<SiteObjectGraphType>();
+    services.AddSingleton<ProbeObjectGraphType>();
+
+
     services.AddSingleton<CharacterInterface>();
     services.AddSingleton<EpisodeEnum>();
     services.AddSingleton<ISchema, StarWarsSchema>();
