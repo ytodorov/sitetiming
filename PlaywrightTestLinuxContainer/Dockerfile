@@ -4,6 +4,7 @@ FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
 WORKDIR /app
 
 
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
     xvfb
 
@@ -31,10 +32,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libxfixes3\
     libxrandr2
 
+
  RUN apt-get update && apt-get install -y npm && \
-     npm i playwright-chromium@1.9.2 && \
-     npm i playwright-firefox@1.9.2 && \
-     npm i playwright-webkit@1.9.2
+     npm i playwright-chromium@latest && \
+     npm i playwright-firefox@latest && \
+     npm i playwright-webkit@latest
 
 RUN apt-get update && apt-get install -y --no-install-recommends libegl1\
           libnotify4\

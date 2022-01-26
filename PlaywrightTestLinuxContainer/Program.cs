@@ -76,7 +76,7 @@ app.UseSwaggerUI();
 app.UseGraphQL<ISchema>();
 
 // use graphql-playground at default url /ui/playground
-app.UseGraphQLPlayground(new PlaygroundOptions() { SchemaPollingEnabled = false });
+app.UseGraphQLPlayground(new PlaygroundOptions() {  SchemaPollingEnabled = false });
 
 app.UseHttpsRedirection();
 

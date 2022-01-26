@@ -26,6 +26,14 @@ namespace Core.GraphQL.Types
                 {
                     Field(typeof(NonNullGraphType<ObjectGraphType>), prop.Name);
                 }
+                else if (prop.PropertyType == typeof(long))
+                {
+                    Field(typeof(NonNullGraphType<LongGraphType>), prop.Name);
+                }
+                else if (prop.PropertyType == typeof(long?))
+                {
+                    Field(type: typeof(LongGraphType), name: prop.Name);
+                }
                 else if (prop.PropertyType == typeof(int))
                 {
                     Field(typeof(NonNullGraphType<IntGraphType>), prop.Name);
