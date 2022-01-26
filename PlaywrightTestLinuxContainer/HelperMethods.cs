@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Core;
+using Core.Classes;
 using Core.Entities;
 using Microsoft.Playwright;
 using Newtonsoft.Json;
@@ -60,6 +61,7 @@ namespace PlaywrightTestLinuxContainer
             BrowserNewPageOptions browserNewPageOptionsNew = new BrowserNewPageOptions();
             browserNewPageOptionsNew.IgnoreHTTPSErrors = true;
             browserNewPageOptionsNew.BypassCSP = true;
+            
             // detect headless brower problem
             // https://github.com/puppeteer/puppeteer/issues/3656#issuecomment-447111512
             // This fix this problem
@@ -90,9 +92,12 @@ namespace PlaywrightTestLinuxContainer
                 //    request.Headers.Clear();
                 //};
 
+                // Do not wait for NetworkIdle because this may never happen - amazon.com
+
                 var response = await page.GotoAsync(url, new PageGotoOptions { WaitUntil = WaitUntilState.Load });
-                // Important for navigation error
-                var selector = await page.WaitForSelectorAsync("html");
+                // Important for navigation error, important for invisible elements: State = WaitForSelectorState.Attached
+
+                var selector = await page.WaitForSelectorAsync("html", new PageWaitForSelectorOptions() { State = WaitForSelectorState.Attached });
                 //var allHeaders = await response?.AllHeadersAsync();
 
                 var res = await page.EvaluateAsync(@"var s = '';
@@ -128,17 +133,27 @@ return s; } f()");
                 var title = await page.TitleAsync();
                 site.Title = title;
 
-                if (site.ScreenshotBase64 == null)
+                //if (site.ScreenshotBase64 == null)
                 {
-                    string path = $"{site.Id}.jpeg";
-                    await page.ScreenshotAsync(new PageScreenshotOptions() { Quality = 50, Type = ScreenshotType.Jpeg, Path = path });
-                    using var image = File.OpenRead(path);
+                    string shortPagePath = $"short_{probe.UniqueGuid}.png";
 
-                    var base64 = Utils.ConvertImageToBase64(image, "jpeg");
+                    string fullPagePath = $"full_{probe.UniqueGuid}.png";
+                    
+                    await page.ScreenshotAsync(new PageScreenshotOptions() { Path = shortPagePath });
 
-                    site.ScreenshotBase64 = base64;
-                    siteTimingContext.Update(site);
-                    File.Delete(path);
+                    await page.ScreenshotAsync(new PageScreenshotOptions() { FullPage = true, Path = fullPagePath });
+
+                    await BlobStorageHelper.UploadBlob(shortPagePath, shortPagePath, "images", new Dictionary<string, string>());
+                    await BlobStorageHelper.UploadBlob(fullPagePath, fullPagePath, "images", new Dictionary<string, string>());
+
+                    //using var image = File.OpenRead(shortPagePath);
+
+                    //var base64 = Utils.ConvertImageToBase64(image, "jpeg");
+
+                    //site.ScreenshotBase64 = base64;
+                    //siteTimingContext.Update(site);
+                    File.Delete(fullPagePath);
+                    File.Delete(shortPagePath);
                 }
 
                 if (site.FaviconBase64 == null)
@@ -148,16 +163,19 @@ return s; } f()");
                     if (favIconResult?.Result?.Status == 200)
                     {
                         var body = await favIconResult.Result.BodyAsync();
-                        string path = $"{site.Id}FavIcon.png";
-                        File.WriteAllBytes(path, body);
+                        string favIconPath = $"favicon_{probe.UniqueGuid}.png";
+                        
+                        File.WriteAllBytes(favIconPath, body);
 
-                        using var image = File.OpenRead(path);
-                        var base64 = Utils.ConvertImageToBase64(image, "png");
+                        await BlobStorageHelper.UploadBlob(favIconPath, favIconPath, "images", new Dictionary<string, string>());
 
-                        site.FaviconBase64 = base64;
-                        siteTimingContext.Update(site);
+                        //using var image = File.OpenRead(favIconPath);
+                        //var base64 = Utils.ConvertImageToBase64(image, "png");
 
-                        File.Delete(path);
+                        //site.FaviconBase64 = base64;
+                        //siteTimingContext.Update(site);
+
+                        File.Delete(favIconPath);
                     }
 
                 }

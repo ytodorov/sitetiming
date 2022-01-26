@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="11.0.0" />
+    <PackageReference Include="Azure.Storage.Blobs" Version="12.10.0" />
     <PackageReference Include="GraphQL" Version="4.7.1" />
     <PackageReference Include="GraphQL.DataLoader" Version="4.7.1" />
     <PackageReference Include="GraphQL.MemoryCache" Version="4.7.1" />

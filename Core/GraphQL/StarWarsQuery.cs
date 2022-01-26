@@ -3,9 +3,11 @@ using System.Linq.Dynamic.Core;
 using System.Text;
 using Core.Classes;
 using Core.Entities;
+using Core.Extensions;
 using Core.GraphQL.Types;
 using GraphQL;
 using GraphQL.Types;
+using Microsoft.EntityFrameworkCore;
 using Mitsubishi.MCMachinery.Core.GraphQL.Types;
 using PlaywrightTestLinuxContainer;
 
@@ -41,11 +43,11 @@ namespace Mitsubishi.MCMachinery.Core.GraphQL
                 using SiteTimingContext siteTimingContext = new SiteTimingContext();
                 var queryParams = GetQueryParamsFromContext(context, typeof(SiteEntity));
                 var entities = siteTimingContext.Sites
+                .OrderBy(queryParams.Order)
                 .Where(queryParams.Where)
                 .Skip(queryParams.Skip.GetValueOrDefault())
                 .Take(queryParams.Take.GetValueOrDefault())
-                .Select(typeof(SiteEntity), queryParams.Select)
-                .OrderBy(queryParams.Order)
+                .Select(typeof(SiteEntity), queryParams.Select)                
                 .ToDynamicList()
                 .Cast<SiteEntity>()
                 .ToList();
@@ -64,15 +66,25 @@ namespace Mitsubishi.MCMachinery.Core.GraphQL
             {
                 using SiteTimingContext siteTimingContext = new SiteTimingContext();
                 var queryParams = GetQueryParamsFromContext(context, typeof(ProbeEntity));
-                var entities = siteTimingContext.Probes
+
+                var query = siteTimingContext.Probes
                 .Where(queryParams.Where)
                 .Skip(queryParams.Skip.GetValueOrDefault())
                 .Take(queryParams.Take.GetValueOrDefault())
                 .Select(typeof(ProbeEntity), queryParams.Select)
-                .OrderBy(queryParams.Order)
-                .ToDynamicList()
-                .Cast<ProbeEntity>()
-                .ToList();
+                .OrderBy(queryParams.Order).ToQueryString();
+
+                //var entities = siteTimingContext.Probes
+                //.OrderBy(queryParams.Order)
+                //.Where(queryParams.Where)
+                //.Skip(queryParams.Skip.GetValueOrDefault())
+                //.Take(queryParams.Take.GetValueOrDefault())
+                //.Select(typeof(ProbeEntity), queryParams.Select)
+                //.ToDynamicList()
+                //.Cast<ProbeEntity>()
+                //.ToList();
+
+                var entities = siteTimingContext.Probes.AsQueryable().ApplyQueryParams(queryParams).ToList();
 
                 return entities;
 
