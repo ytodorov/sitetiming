@@ -14,6 +14,7 @@ variables:
   imageRepository: 'ytodorovsitetiming'
   containerRegistry: 'crsitetiming.azurecr.io'
   dockerfilePath: '$(Build.SourcesDirectory)/PlaywrightTestLinuxContainer/Dockerfile'
+  buildContext: '$(Build.SourcesDirectory)'
   tag: '$(Build.BuildId)'
 
   # Agent VM image name
@@ -34,6 +35,8 @@ stages:
         command: buildAndPush
         repository: $(imageRepository)
         dockerfile: $(dockerfilePath)
+        buildContext: $(buildContext)
         containerRegistry: $(dockerRegistryServiceConnection)
         tags: |
           $(tag)
+          latest
