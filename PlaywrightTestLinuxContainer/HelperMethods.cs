@@ -93,11 +93,16 @@ namespace PlaywrightTestLinuxContainer
                 //};
 
                 // Do not wait for NetworkIdle because this may never happen - amazon.com
-
+                
                 var response = await page.GotoAsync(url, new PageGotoOptions { WaitUntil = WaitUntilState.Load });
                 // Important for navigation error, important for invisible elements: State = WaitForSelectorState.Attached
 
                 var selector = await page.WaitForSelectorAsync("html", new PageWaitForSelectorOptions() { State = WaitForSelectorState.Attached });
+                selector = await page.WaitForSelectorAsync("body", new PageWaitForSelectorOptions() { State = WaitForSelectorState.Attached });
+
+                // Just wait a little more to load more images
+                //Thread.Sleep(1000);
+
                 //var allHeaders = await response?.AllHeadersAsync();
 
                 var res = await page.EvaluateAsync(@"var s = '';
@@ -135,16 +140,19 @@ return s; } f()");
 
                 //if (site.ScreenshotBase64 == null)
                 {
-                    string shortPagePath = $"short_{probe.UniqueGuid}.png";
+                    string shortPagePath = $"short_{probe.UniqueGuid}.jpeg";
 
-                    string fullPagePath = $"full_{probe.UniqueGuid}.png";
+                    string fullPagePath = $"full_{probe.UniqueGuid}.jpeg";
                     
-                    await page.ScreenshotAsync(new PageScreenshotOptions() { Path = shortPagePath });
+                    await page.ScreenshotAsync(new PageScreenshotOptions() { Quality = 50, Type = ScreenshotType.Jpeg, Path = shortPagePath });
 
-                    await page.ScreenshotAsync(new PageScreenshotOptions() { FullPage = true, Path = fullPagePath });
+                    await page.ScreenshotAsync(new PageScreenshotOptions() { Quality = 50, Type = ScreenshotType.Jpeg, FullPage = true, Path = fullPagePath });
 
-                    await BlobStorageHelper.UploadBlob(shortPagePath, shortPagePath, "images", new Dictionary<string, string>());
-                    await BlobStorageHelper.UploadBlob(fullPagePath, fullPagePath, "images", new Dictionary<string, string>());
+                    var dict = new Dictionary<string, string>();
+                    dict.Add("ContentType", "image/jpeg");
+
+                    await BlobStorageHelper.UploadBlob(shortPagePath, shortPagePath, "images", dict);
+                    await BlobStorageHelper.UploadBlob(fullPagePath, fullPagePath, "images", dict);
 
                     //using var image = File.OpenRead(shortPagePath);
 
@@ -156,29 +164,29 @@ return s; } f()");
                     File.Delete(shortPagePath);
                 }
 
-                if (site.FaviconBase64 == null)
-                {
-                    var favIconResult = page.GotoAsync($"https://www.google.com/s2/favicons?domain={url}");
+                //if (site.FaviconBase64 == null)
+                //{
+                //    var favIconResult = page.GotoAsync($"https://www.google.com/s2/favicons?domain={url}");
 
-                    if (favIconResult?.Result?.Status == 200)
-                    {
-                        var body = await favIconResult.Result.BodyAsync();
-                        string favIconPath = $"favicon_{probe.UniqueGuid}.png";
+                //    if (favIconResult?.Result?.Status == 200)
+                //    {
+                //        var body = await favIconResult.Result.BodyAsync();
+                //        string favIconPath = $"favicon_{probe.UniqueGuid}.png";
                         
-                        File.WriteAllBytes(favIconPath, body);
+                //        File.WriteAllBytes(favIconPath, body);
 
-                        await BlobStorageHelper.UploadBlob(favIconPath, favIconPath, "images", new Dictionary<string, string>());
+                //        await BlobStorageHelper.UploadBlob(favIconPath, favIconPath, "images", new Dictionary<string, string>());
 
-                        //using var image = File.OpenRead(favIconPath);
-                        //var base64 = Utils.ConvertImageToBase64(image, "png");
+                //        //using var image = File.OpenRead(favIconPath);
+                //        //var base64 = Utils.ConvertImageToBase64(image, "png");
 
-                        //site.FaviconBase64 = base64;
-                        //siteTimingContext.Update(site);
+                //        //site.FaviconBase64 = base64;
+                //        //siteTimingContext.Update(site);
 
-                        File.Delete(favIconPath);
-                    }
+                //        File.Delete(favIconPath);
+                //    }
 
-                }
+                //}
 
                 var props = typeof(ProbeEntity).GetProperties();
 

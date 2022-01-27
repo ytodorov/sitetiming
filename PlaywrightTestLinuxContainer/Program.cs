@@ -1,4 +1,5 @@
 using Core.GraphQL.Types;
+using GraphQL.DataLoader;
 using GraphQL.MicrosoftDI;
 using GraphQL.Server;
 using GraphQL.Server.Ui.Playground;
@@ -37,6 +38,10 @@ builder.Services.AddSingleton<IBrowser>((s) =>
 
     return browser;
 });
+
+
+//builder.Services.AddLogging(builder => builder.AddConsole());
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddResponseCompression(options =>
 {
@@ -107,10 +112,12 @@ void ConfigureGraphQL(IServiceCollection services)
 
     services.AddSingleton<CharacterInterface>();
     services.AddSingleton<EpisodeEnum>();
-    services.AddSingleton<ISchema, StarWarsSchema>();
 
-    services.AddLogging(builder => builder.AddConsole());
-    services.AddHttpContextAccessor();
+    services.AddSingleton<IDataLoaderContextAccessor, DataLoaderContextAccessor>();
+    services.AddSingleton<DataLoaderDocumentListener>();
+
+
+    services.AddSingleton<ISchema, StarWarsSchema>();
 
     //services.AddGraphQL();
 
