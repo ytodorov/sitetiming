@@ -76,11 +76,7 @@ ConfigureGraphQL(builder.Services);
 
 var app = builder.Build();
 
-app.UseSwagger();
-app.UseSwaggerUI();
 
-// add http for Schema at default url /graphql
-app.UseGraphQL<ISchema>();
 
 // use graphql-playground at default url /ui/playground
 app.UseGraphQLPlayground(new PlaygroundOptions() {  SchemaPollingEnabled = false });
@@ -88,6 +84,12 @@ app.UseGraphQLPlayground(new PlaygroundOptions() {  SchemaPollingEnabled = false
 app.UseHttpsRedirection();
 
 app.UseResponseCompression();
+
+app.UseSwagger();
+app.UseSwaggerUI();
+
+// add http for Schema at default url /graphql
+app.UseGraphQL<ISchema>();
 
 //app.UseAuthorization();
 
