@@ -27,8 +27,6 @@ namespace Core.GraphQL
             {
                 SiteTimingContext dbContext = scope.ServiceProvider.GetRequiredService<SiteTimingContext>();
 
-                IResolveFieldContext resolveFieldContext = scope.ServiceProvider.GetRequiredService<IResolveFieldContext>();
-
                 IEnumerable<int> ids = list.Select(pair => pair.Key);
                 IDictionary<int, T> data = await dbContext.Set<T>().Where(order => ids.Contains(order.Id)).ToDictionaryAsync(x => x.Id, cancellationToken);
                 foreach (DataLoaderPair<int, T> entry in list)

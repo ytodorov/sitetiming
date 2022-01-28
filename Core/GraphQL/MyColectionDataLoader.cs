@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Core.GraphQL
 {
-    public class MyCollectionDataLoader<T> : DataLoaderBase<int, IEnumerable<T>> where T : BaseEntity
+    public class MyCollectionDataLoader<T> : DataLoaderBase<long, IEnumerable<T>> where T : BaseEntity
     {
         private readonly IServiceProvider _rootServiceProvider;
         public MyCollectionDataLoader(IServiceProvider serviceProvider) : base(false)
@@ -20,18 +20,16 @@ namespace Core.GraphQL
             _rootServiceProvider = serviceProvider;
         }
 
-        protected override async Task FetchAsync(IEnumerable<DataLoaderPair<int, IEnumerable<T>>> list, CancellationToken cancellationToken)
+        protected override async Task FetchAsync(IEnumerable<DataLoaderPair<long, IEnumerable<T>>> list, CancellationToken cancellationToken)
         {
             using (var scope = _rootServiceProvider.CreateScope())
             {
                 SiteTimingContext dbContext = scope.ServiceProvider.GetRequiredService<SiteTimingContext>();
 
-                IResolveFieldContext resolveFieldContext = scope.ServiceProvider.GetRequiredService<IResolveFieldContext>();
-
-                List<int> ids = list.Select(pair => pair.Key).ToList();
+                List<long> ids = list.Select(pair => pair.Key).ToList();
                 IEnumerable<T> data = await dbContext.Set<T>().Where(orderItem => ids.Contains(orderItem.Id)).ToListAsync(cancellationToken);
-                ILookup<int, T> dataLookup = data.ToLookup(x => x.Id);
-                foreach (DataLoaderPair<int, IEnumerable<T>> entry in list)
+                ILookup<long, T> dataLookup = data.ToLookup(x => (long)x.Id);
+                foreach (DataLoaderPair<long, IEnumerable<T>> entry in list)
                 {
                     entry.SetResult(dataLookup[entry.Key]);
                 }

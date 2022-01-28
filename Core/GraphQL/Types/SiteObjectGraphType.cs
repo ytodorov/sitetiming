@@ -1,10 +1,12 @@
 ﻿using Core.Entities;
 using GraphQL.Types;
+using GraphQL.DataLoader;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using PlaywrightTestLinuxContainer;
 
 namespace Core.GraphQL.Types
 {
@@ -12,13 +14,7 @@ namespace Core.GraphQL.Types
     {
         public SiteObjectGraphType()
         {
-                //Field<ListGraphType<ProbeObjectGraphType>, IEnumerable<ProbeEntity>>()
-                //   .Name(nameof(SiteEntity.Probes))
-                //    .ResolveAsync(context =>
-                //    {
-                //        //return loader.LoadAsync(1).GetResultAsync();
-                //        return loader.LoadAsync(context.Source.Id);
-                //    });
+           
         }
     }
 }
