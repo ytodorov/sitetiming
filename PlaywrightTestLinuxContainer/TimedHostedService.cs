@@ -32,11 +32,11 @@ namespace PlaywrightTestLinuxContainer
 
         private async void DoWork(object? state)
         {
-            // Do not make records in DB when in Mentormate
-            //if (HelperMethods.IpAddressOfServer == "217.79.32.194")
-            //{
-            //    return;
-            //}
+            //Do not make records in DB when in Mentormate
+            if (HelperMethods.IpAddressOfServer == "217.79.32.194")
+            {
+                return;
+            }
             while (true)
             {
                 try

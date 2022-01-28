@@ -13,11 +13,11 @@ namespace Core.Extensions
         public static IQueryable<T> ApplyQueryParams<T>(this IQueryable<T> query, QueryParams queryParams)
         {
             query = query
+                .OrderBy(queryParams.Order)
                 .Where(queryParams.Where)
                 .Skip(queryParams.Skip.GetValueOrDefault())
                 .Take(queryParams.Take.GetValueOrDefault())
                 .Select(typeof(T), queryParams.Select)
-                .OrderBy(queryParams.Order)
                 .Cast<T>()
                 .AsQueryable();
                 
