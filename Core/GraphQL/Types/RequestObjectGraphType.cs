@@ -11,15 +11,15 @@ using System.Threading.Tasks;
 
 namespace Core.GraphQL.Types
 {
-    public class ProbeObjectGraphType : BaseObjectGraphType<ProbeEntity>
+    public class RequestObjectGraphType : BaseObjectGraphType<RequestEntity>
     {
-        public ProbeObjectGraphType(MyEntityDataLoader<SiteEntity> loader)
+        public RequestObjectGraphType(MyEntityDataLoader<ProbeEntity> loader)
         {
-            Field<SiteObjectGraphType, SiteEntity>()
-               .Name(nameof(ProbeEntity.Site))
+            Field<ProbeObjectGraphType, ProbeEntity>()
+               .Name(nameof(RequestEntity.Probe))
                 .ResolveAsync(context =>
                 {
-                    return loader.LoadAsync(context.Source.SiteId);
+                    return loader.LoadAsync(context.Source.ProbeId);
                 });
         }
     }

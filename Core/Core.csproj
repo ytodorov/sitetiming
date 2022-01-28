@@ -7,6 +7,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="GraphQL\HumanInputType.cs" />
+    <Compile Remove="GraphQL\InputValidationRule.cs" />
+    <Compile Remove="GraphQL\MyColectionDataLoader.cs" />
+    <Compile Remove="GraphQL\StarWarsData.cs" />
+    <Compile Remove="GraphQL\StarWarsMutation.cs" />
+    <Compile Remove="GraphQL\Types\CharacterInterface.cs" />
+    <Compile Remove="GraphQL\Types\DroidType.cs" />
+    <Compile Remove="GraphQL\Types\EpisodeEnum.cs" />
+    <Compile Remove="GraphQL\Types\HumanType.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Azure.Storage.Blobs" Version="12.10.0" />
     <PackageReference Include="GraphQL" Version="4.7.1" />
     <PackageReference Include="GraphQL.DataLoader" Version="4.7.1" />

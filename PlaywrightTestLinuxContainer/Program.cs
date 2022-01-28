@@ -1,3 +1,5 @@
+using Core.Entities;
+using Core.GraphQL;
 using Core.GraphQL.Types;
 using GraphQL.DataLoader;
 using GraphQL.MicrosoftDI;
@@ -99,25 +101,18 @@ app.Run();
 
 void ConfigureGraphQL(IServiceCollection services)
 {
-    services.AddSingleton<StarWarsData>();
-    services.AddSingleton<StarWarsQuery>();
-    services.AddSingleton<StarWarsMutation>();
-    services.AddSingleton<HumanType>();
-    services.AddSingleton<HumanInputType>();
-    services.AddSingleton<DroidType>();
+    services.AddSingleton<MyEntityDataLoader<SiteEntity>>();
+
+    services.AddSingleton<SiteTimingQuery>();
 
     services.AddSingleton<SiteObjectGraphType>();
     services.AddSingleton<ProbeObjectGraphType>();
-
-
-    services.AddSingleton<CharacterInterface>();
-    services.AddSingleton<EpisodeEnum>();
 
     services.AddSingleton<IDataLoaderContextAccessor, DataLoaderContextAccessor>();
     services.AddSingleton<DataLoaderDocumentListener>();
 
 
-    services.AddSingleton<ISchema, StarWarsSchema>();
+    services.AddSingleton<ISchema, SiteTimingSchema>();
 
     //services.AddGraphQL();
 

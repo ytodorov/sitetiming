@@ -12,7 +12,13 @@ namespace Core.GraphQL.Types
     {
         public SiteObjectGraphType()
         {
-            
+                //Field<ListGraphType<ProbeObjectGraphType>, IEnumerable<ProbeEntity>>()
+                //   .Name(nameof(SiteEntity.Probes))
+                //    .ResolveAsync(context =>
+                //    {
+                //        //return loader.LoadAsync(1).GetResultAsync();
+                //        return loader.LoadAsync(context.Source.Id);
+                //    });
         }
     }
 }
