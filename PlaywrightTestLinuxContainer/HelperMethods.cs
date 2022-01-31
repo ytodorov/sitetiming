@@ -140,19 +140,24 @@ return s; } f()");
 
                 //if (site.ScreenshotBase64 == null)
                 {
-                    string shortPagePath = $"short_{probe.UniqueGuid}.jpeg";
+                    string shortPagePath50 = $"short50_{probe.UniqueGuid}.jpeg";
+
+                    string shortPagePath5 = $"short5_{probe.UniqueGuid}.jpeg";
 
                     string fullPagePath = $"full_{probe.UniqueGuid}.jpeg";
                     
-                    await page.ScreenshotAsync(new PageScreenshotOptions() { Quality = 50, Type = ScreenshotType.Jpeg, Path = shortPagePath });
+                    await page.ScreenshotAsync(new PageScreenshotOptions() { Quality = 50, Type = ScreenshotType.Jpeg, Path = shortPagePath50 });
 
-                    await page.ScreenshotAsync(new PageScreenshotOptions() { Quality = 50, Type = ScreenshotType.Jpeg, FullPage = true, Path = fullPagePath });
+                    await page.ScreenshotAsync(new PageScreenshotOptions() { Quality = 5, Type = ScreenshotType.Jpeg, Path = shortPagePath5 });
+
+                    //await page.ScreenshotAsync(new PageScreenshotOptions() { Quality = 50, Type = ScreenshotType.Jpeg, FullPage = true, Path = fullPagePath });
 
                     var dict = new Dictionary<string, string>();
                     dict.Add("ContentType", "image/jpeg");
 
-                    await BlobStorageHelper.UploadBlob(shortPagePath, shortPagePath, "images", dict);
-                    await BlobStorageHelper.UploadBlob(fullPagePath, fullPagePath, "images", dict);
+                    await BlobStorageHelper.UploadBlob(shortPagePath50, shortPagePath50, "images", dict);
+                    await BlobStorageHelper.UploadBlob(shortPagePath5, shortPagePath5, "images", dict);
+                    //await BlobStorageHelper.UploadBlob(fullPagePath, fullPagePath, "images", dict);
 
                     //using var image = File.OpenRead(shortPagePath);
 
@@ -161,7 +166,8 @@ return s; } f()");
                     //site.ScreenshotBase64 = base64;
                     //siteTimingContext.Update(site);
                     File.Delete(fullPagePath);
-                    File.Delete(shortPagePath);
+                    File.Delete(shortPagePath50);
+                    File.Delete(shortPagePath5);
                 }
 
                 //if (site.FaviconBase64 == null)

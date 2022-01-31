@@ -1,5 +1,6 @@
 ﻿using Core.Entities;
 using GraphQL.DataLoader;
+using GraphQL.Types;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using PlaywrightTestLinuxContainer;
@@ -15,12 +16,20 @@ namespace Core.GraphQL.Types
     {
         public ProbeObjectGraphType(MyEntityDataLoader<SiteEntity> loader)
         {
-            Field<SiteObjectGraphType, SiteEntity>()
+            var f = Field<SiteObjectGraphType, SiteEntity>()
                .Name(nameof(ProbeEntity.Site))
                 .ResolveAsync(context =>
                 {
                     return loader.LoadAsync(context.Source.SiteId);
                 });
+
+            f.Argument<IntGraphType>("test");
+            /*
+              new QueryArgument<IntGraphType> { Name = nameof(QueryParams.Take).ToLowerInvariant() },
+                   new QueryArgument<IntGraphType> { Name = nameof(QueryParams.Skip).ToLowerInvariant() },
+                   new QueryArgument<StringGraphType> { Name = nameof(QueryParams.Order).ToLowerInvariant() },
+                   new QueryArgument<StringGraphType> { Name = nameof(QueryParams.Where).ToLowerInvariant() }
+             */
         }
     }
 }
