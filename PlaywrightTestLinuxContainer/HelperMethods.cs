@@ -12,6 +12,7 @@ namespace PlaywrightTestLinuxContainer
 {
     public static class HelperMethods
     {
+        public static Random Random { get; } = new Random();
         private static IMapper? Mapper { get; set; }
 
         private static Type RequestType { get; set; }
@@ -93,10 +94,13 @@ namespace PlaywrightTestLinuxContainer
                 //};
 
                 // Do not wait for NetworkIdle because this may never happen - amazon.com
-                
-                var response = await page.GotoAsync(url, new PageGotoOptions { WaitUntil = WaitUntilState.Load });
-                // Important for navigation error, important for invisible elements: State = WaitForSelectorState.Attached
+                // Do not wat for Load - https://www.gov.cn/ his may never happen
+                // ONLY WAIT FOR DOMContentLoaded
 
+
+                var response = await page.GotoAsync(url, new PageGotoOptions { WaitUntil = WaitUntilState.DOMContentLoaded });
+
+                // Important for navigation error, important for invisible elements: State = WaitForSelectorState.Attached
                 var selector = await page.WaitForSelectorAsync("html", new PageWaitForSelectorOptions() { State = WaitForSelectorState.Attached });
                 selector = await page.WaitForSelectorAsync("body", new PageWaitForSelectorOptions() { State = WaitForSelectorState.Attached });
 
@@ -146,17 +150,17 @@ return s; } f()");
 
                     string fullPagePath = $"full_{probe.UniqueGuid}.jpeg";
                     
-                    await page.ScreenshotAsync(new PageScreenshotOptions() { Quality = 50, Type = ScreenshotType.Jpeg, Path = shortPagePath50 });
+                    //await page.ScreenshotAsync(new PageScreenshotOptions() { Quality = 50, Type = ScreenshotType.Jpeg, Path = shortPagePath50 });
 
                     await page.ScreenshotAsync(new PageScreenshotOptions() { Quality = 5, Type = ScreenshotType.Jpeg, Path = shortPagePath5 });
 
                     //await page.ScreenshotAsync(new PageScreenshotOptions() { Quality = 50, Type = ScreenshotType.Jpeg, FullPage = true, Path = fullPagePath });
 
-                    var dict = new Dictionary<string, string>();
-                    dict.Add("ContentType", "image/jpeg");
+                    //var dict = new Dictionary<string, string>();
+                    //dict.Add("ContentType", "image/jpeg");
 
-                    await BlobStorageHelper.UploadBlob(shortPagePath50, shortPagePath50, "images", dict);
-                    await BlobStorageHelper.UploadBlob(shortPagePath5, shortPagePath5, "images", dict);
+                    //await BlobStorageHelper.UploadBlob(shortPagePath50, shortPagePath50, "images", dict);
+                    await BlobStorageHelper.UploadBlob(shortPagePath5, shortPagePath5, "images", new Dictionary<string, string>());
                     //await BlobStorageHelper.UploadBlob(fullPagePath, fullPagePath, "images", dict);
 
                     //using var image = File.OpenRead(shortPagePath);
@@ -165,11 +169,27 @@ return s; } f()");
 
                     //site.ScreenshotBase64 = base64;
                     //siteTimingContext.Update(site);
-                    File.Delete(fullPagePath);
-                    File.Delete(shortPagePath50);
+                    //File.Delete(fullPagePath);
+                    //File.Delete(shortPagePath50);
                     File.Delete(shortPagePath5);
                 }
 
+                /*
+                 * var getFavicon = function(){
+    var favicon = undefined;
+    var nodeList = document.getElementsByTagName("link");
+    for (var i = 0; i < nodeList.length; i++)
+    {
+        if((nodeList[i].getAttribute("rel") == "icon")||(nodeList[i].getAttribute("rel") == "shortcut icon"))
+        {
+            favicon = nodeList[i].getAttribute("href");
+        }
+    }
+    return favicon;        
+}
+
+alert(getFavicon());
+                 */
                 //if (site.FaviconBase64 == null)
                 //{
                 //    var favIconResult = page.GotoAsync($"https://www.google.com/s2/favicons?domain={url}");
@@ -178,7 +198,7 @@ return s; } f()");
                 //    {
                 //        var body = await favIconResult.Result.BodyAsync();
                 //        string favIconPath = $"favicon_{probe.UniqueGuid}.png";
-                        
+
                 //        File.WriteAllBytes(favIconPath, body);
 
                 //        await BlobStorageHelper.UploadBlob(favIconPath, favIconPath, "images", new Dictionary<string, string>());
@@ -207,9 +227,16 @@ return s; } f()");
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Exception:" + ex.Message);
+                var shortmessage = ex.Message;
+                var index = ex.Message.IndexOf("=========================== logs ===========================");
+                if (index >= 0)
+                {
+                    shortmessage = ex.Message.Substring(0, ex.Message.IndexOf("=========================== logs ===========================")).Trim();
+                }
+
+                //Console.WriteLine("Exception:" + ex.Message);
                 probe.IsSuccessfull = false;
-                probe.ExceptionMessage = ex.Message + ex.InnerException?.Message;
+                probe.ExceptionMessage = shortmessage;
                 probe.ExceptionStackTrace = ex.StackTrace + ex.InnerException?.StackTrace;
             }
             finally

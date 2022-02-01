@@ -31,7 +31,7 @@ namespace Core.Entities
 
         public override string ToString()
         {
-            return $"{DOMContentLoadedEventInChrome} {LoadEventInChrome}";
+            return $"Url: {Site?.Url}{Environment.NewLine}TimetakenToGenerateInMs:{TimetakenToGenerateInMs}{Environment.NewLine}Latency: {LatencyInChrome}{Environment.NewLine}DomLoaded: {DOMContentLoadedEventInChrome}{Environment.NewLine}";
         }
     }
 }

@@ -33,10 +33,10 @@ namespace PlaywrightTestLinuxContainer
         private async void DoWork(object? state)
         {
             //Do not make records in DB when in Mentormate
-            if (HelperMethods.IpAddressOfServer == "217.79.32.194")
-            {
-                return;
-            }
+            //if (HelperMethods.IpAddressOfServer == "217.79.32.194")
+            //{
+            //    return;
+            //}
             while (true)
             {
                 try
@@ -46,19 +46,27 @@ namespace PlaywrightTestLinuxContainer
                     var allSites = timingContext.Sites
                          .OrderBy(s => s.Id)
                         .Select(s => new { s.Url, s.Name })
-
                         .ToList().ToList();
+
                     int countOfAllSites = allSites.Count;
+
+                    var randomNumber = (int)HelperMethods.Random.NextInt64(0, countOfAllSites - 1);
+                    var randomSite = allSites[randomNumber];
+
+                    var data = await HelperMethods.ExecuteProbeAsync(randomSite.Url, browser);
+                    string dataString = data.ToString();
+
+
 
                     //var results = new List<ProbeEntity>();
                     // CPU is 100% on small app service plan in Azure
-                    Parallel.For(0, countOfAllSites, new ParallelOptions() { MaxDegreeOfParallelism = 1 }, (int i) =>
-                    {
-                        var site = allSites[i];
-                        var data = HelperMethods.ExecuteProbeAsync(site.Url, browser).Result;
-                        Thread.Sleep(1000);
-                        //results.Add(data);
-                    });
+                    //Parallel.For(0, countOfAllSites, new ParallelOptions() { MaxDegreeOfParallelism = 1 }, (int i) =>
+                    //{
+                    //    var site = allSites[i];
+                    //    var data = HelperMethods.ExecuteProbeAsync(site.Url, browser).Result;
+                    //    Thread.Sleep(1000);
+                    //    //results.Add(data);
+                    //});
                 }
                 catch (Exception ex)
                 {
