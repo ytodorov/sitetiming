@@ -1,28 +1,31 @@
 ﻿using Microsoft.Playwright;
 using Microsoft.EntityFrameworkCore;
 using Core.Entities;
+using Microsoft.ApplicationInsights;
 
 namespace PlaywrightTestLinuxContainer
 {
     public class TimedHostedService : IHostedService, IDisposable
     {
         private int executionCount = 0;
-        private readonly ILogger<TimedHostedService> _logger;
-        private Timer _timer = null!;
+        private readonly ILogger<TimedHostedService> logger;
+        private Timer timer = null!;
         private IBrowser browser;
+        private TelemetryClient applicationInsightsClient;
 
-        public TimedHostedService(ILogger<TimedHostedService> logger, IBrowser browser)
+        public TimedHostedService(ILogger<TimedHostedService> logger, IBrowser browser, TelemetryClient applicationInsightsClient)
         {
-            _logger = logger;
+            this.logger = logger;
             this.browser = browser;
+            this.applicationInsightsClient = applicationInsightsClient;
         }
 
         public Task StartAsync(CancellationToken stoppingToken)
         {
-            _logger.LogInformation("Timed Hosted Service running.");
+            logger.LogInformation("Timed Hosted Service running.");
 
-            _timer = new Timer(DoWork, null, TimeSpan.Zero,
-                TimeSpan.FromMinutes(10000));
+            timer = new Timer(DoWork, null, 0, Timeout.Infinite);
+                
 
 
             return Task.CompletedTask;
@@ -37,6 +40,9 @@ namespace PlaywrightTestLinuxContainer
             //{
             //    return;
             //}
+
+            applicationInsightsClient.TrackEvent("DoWork Started");
+
             while (true)
             {
                 try
@@ -70,23 +76,25 @@ namespace PlaywrightTestLinuxContainer
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, ex.Message);
+                    applicationInsightsClient.TrackException(ex);
+                    logger.LogError(ex, ex.Message);
                 }
             }
         }
 
         public Task StopAsync(CancellationToken stoppingToken)
         {
-            _logger.LogInformation("Timed Hosted Service is stopping.");
+            applicationInsightsClient.TrackEvent("StopAsync Started");
+            logger.LogInformation("Timed Hosted Service is stopping.");
 
-            _timer?.Change(Timeout.Infinite, 0);
+            timer?.Change(Timeout.Infinite, 0);
 
             return Task.CompletedTask;
         }
 
         public void Dispose()
         {
-            _timer?.Dispose();
+            timer?.Dispose();
         }
     }
 }
