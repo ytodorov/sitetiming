@@ -54,7 +54,8 @@ namespace PlaywrightTestLinuxContainer
             ProbeEntity? probe = new ProbeEntity();
             Stopwatch sw = Stopwatch.StartNew();
 
-            float timeout = (float)TimeSpan.FromMinutes(2).TotalMilliseconds;
+            // FROM US - https://www.sitetiming.com/http://noi.bg timeout
+            float timeout = (float)TimeSpan.FromSeconds(20).TotalMilliseconds;
 
             //using var playwright = await Playwright.CreateAsync();
             //await using var browser = await playwright.Chromium.LaunchAsync(new() { Headless = true, Timeout = timeout });
@@ -104,6 +105,8 @@ namespace PlaywrightTestLinuxContainer
                 var selector = await page.WaitForSelectorAsync("html", new PageWaitForSelectorOptions() { State = WaitForSelectorState.Attached });
                 selector = await page.WaitForSelectorAsync("body", new PageWaitForSelectorOptions() { State = WaitForSelectorState.Attached });
 
+
+
                 // Just wait a little more to load more images
                 //Thread.Sleep(1000);
 
@@ -150,17 +153,17 @@ return s; } f()");
 
                     string fullPagePath = $"full_{probe.UniqueGuid}.jpeg";
                     
-                    //await page.ScreenshotAsync(new PageScreenshotOptions() { Quality = 50, Type = ScreenshotType.Jpeg, Path = shortPagePath50 });
+                    await page.ScreenshotAsync(new PageScreenshotOptions() { Quality = 50, Type = ScreenshotType.Jpeg, Path = shortPagePath50 });
 
-                    await page.ScreenshotAsync(new PageScreenshotOptions() { Quality = 5, Type = ScreenshotType.Jpeg, Path = shortPagePath5 });
+                    //await page.ScreenshotAsync(new PageScreenshotOptions() { Quality = 5, Type = ScreenshotType.Jpeg, Path = shortPagePath5 });
 
                     //await page.ScreenshotAsync(new PageScreenshotOptions() { Quality = 50, Type = ScreenshotType.Jpeg, FullPage = true, Path = fullPagePath });
 
                     //var dict = new Dictionary<string, string>();
                     //dict.Add("ContentType", "image/jpeg");
 
-                    //await BlobStorageHelper.UploadBlob(shortPagePath50, shortPagePath50, "images", dict);
-                    await BlobStorageHelper.UploadBlob(shortPagePath5, shortPagePath5, "images", new Dictionary<string, string>());
+                    await BlobStorageHelper.UploadBlob(shortPagePath50, shortPagePath50, "images", new Dictionary<string, string>());
+                    //await BlobStorageHelper.UploadBlob(shortPagePath5, shortPagePath5, "images", new Dictionary<string, string>());
                     //await BlobStorageHelper.UploadBlob(fullPagePath, fullPagePath, "images", dict);
 
                     //using var image = File.OpenRead(shortPagePath);
@@ -170,8 +173,8 @@ return s; } f()");
                     //site.ScreenshotBase64 = base64;
                     //siteTimingContext.Update(site);
                     //File.Delete(fullPagePath);
-                    //File.Delete(shortPagePath50);
-                    File.Delete(shortPagePath5);
+                    File.Delete(shortPagePath50);
+                    //File.Delete(shortPagePath5);
                 }
 
                 /*

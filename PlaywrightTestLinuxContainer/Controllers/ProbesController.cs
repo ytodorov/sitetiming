@@ -30,7 +30,7 @@ namespace PlaywrightTestLinuxContainer.Controllers
             }
 
             query = query.Take(take).OrderByDescending(s => s.Id);
-            query = query.Include(s => s.Site);
+            //query = query.Include(s => s.Site);
 
 
             var result = await query

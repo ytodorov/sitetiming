@@ -120,7 +120,7 @@ void ConfigureGraphQL(IServiceCollection services)
 
     services.AddGraphQL(options =>
     {
-        options.EnableMetrics = true;
+        //options.EnableMetrics = true;
     })
     .AddErrorInfoProvider(opt => opt.ExposeExceptionStackTrace = true)
     .AddSystemTextJson()
