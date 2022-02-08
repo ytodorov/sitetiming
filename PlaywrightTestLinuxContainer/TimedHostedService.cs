@@ -67,7 +67,7 @@ namespace PlaywrightTestLinuxContainer
                     var data = await HelperMethods.ExecuteProbeAsync(randomSite.Url, browser);
                     string dataString = data.ToString();
 
-                    Thread.Sleep(1000);
+                    Thread.Sleep(30000);
 
 
 
