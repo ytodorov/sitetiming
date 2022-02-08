@@ -42,6 +42,8 @@ namespace PlaywrightTestLinuxContainer
 
             using SiteTimingContext siteTimingContext = new SiteTimingContext();
 
+            url = url.ToLowerInvariant();
+
             SiteEntity site = siteTimingContext.Sites.FirstOrDefault(s => s.Url == url);
             if (site == null)
             {

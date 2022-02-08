@@ -43,16 +43,21 @@ namespace PlaywrightTestLinuxContainer
 
             applicationInsightsClient.TrackEvent("DoWork Started");
 
+
+            using SiteTimingContext timingContext = new SiteTimingContext();
+
+            var allSites = timingContext.Sites
+                   .OrderBy(s => s.Id)
+                  .Select(s => new { s.Url })
+                  .AsNoTracking()
+                  .ToList();
+
+            timingContext.Dispose();
+
             while (true)
             {
                 try
                 {
-                    using SiteTimingContext timingContext = new SiteTimingContext();
-
-                    var allSites = timingContext.Sites
-                         .OrderBy(s => s.Id)
-                        .Select(s => new { s.Url, s.Name })
-                        .ToList().ToList();
 
                     int countOfAllSites = allSites.Count;
 
@@ -61,6 +66,8 @@ namespace PlaywrightTestLinuxContainer
 
                     var data = await HelperMethods.ExecuteProbeAsync(randomSite.Url, browser);
                     string dataString = data.ToString();
+
+                    Thread.Sleep(1000);
 
 
 
