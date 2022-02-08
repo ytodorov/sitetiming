@@ -2,6 +2,7 @@
 using Core;
 using Core.Classes;
 using Core.Entities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Playwright;
 using Newtonsoft.Json;
 using System.Diagnostics;
@@ -44,20 +45,32 @@ namespace PlaywrightTestLinuxContainer
 
             url = url.ToLowerInvariant();
 
-            SiteEntity site = siteTimingContext.Sites.FirstOrDefault(s => s.Url == url);
-            if (site == null)
+            using var transaction = siteTimingContext.Database.BeginTransaction(System.Data.IsolationLevel.RepeatableRead);
+            SiteEntity site = null;
+
+            try
             {
-                site = new SiteEntity();
-                site.Url = url;
-                await siteTimingContext.Sites.AddAsync(site);
-                await siteTimingContext.SaveChangesAsync();
+                site = await siteTimingContext.Sites.FirstOrDefaultAsync(s => s.Url == url);
+                if (site == null)
+                {
+                    site = new SiteEntity();
+                    site.Url = url;
+                    await siteTimingContext.Sites.AddAsync(site);
+                    await siteTimingContext.SaveChangesAsync();
+                }
+                transaction.Commit();
             }
+            catch (Exception ex)
+            {
+                transaction.Rollback();
+            }
+            
 
             ProbeEntity? probe = new ProbeEntity();
             Stopwatch sw = Stopwatch.StartNew();
 
             // FROM US - https://www.sitetiming.com/http://noi.bg timeout
-            float timeout = (float)TimeSpan.FromSeconds(20).TotalMilliseconds;
+            float timeout = (float)TimeSpan.FromSeconds(30).TotalMilliseconds;
 
             //using var playwright = await Playwright.CreateAsync();
             //await using var browser = await playwright.Chromium.LaunchAsync(new() { Headless = true, Timeout = timeout });
@@ -65,7 +78,7 @@ namespace PlaywrightTestLinuxContainer
             BrowserNewPageOptions browserNewPageOptionsNew = new BrowserNewPageOptions();
             browserNewPageOptionsNew.IgnoreHTTPSErrors = true;
             browserNewPageOptionsNew.BypassCSP = true;
-            
+
             // detect headless brower problem
             // https://github.com/puppeteer/puppeteer/issues/3656#issuecomment-447111512
             // This fix this problem
@@ -154,7 +167,7 @@ return s; } f()");
                     string shortPagePath5 = $"short5_{probe.UniqueGuid}.jpeg";
 
                     string fullPagePath = $"full_{probe.UniqueGuid}.jpeg";
-                    
+
                     await page.ScreenshotAsync(new PageScreenshotOptions() { Quality = 50, Type = ScreenshotType.Jpeg, Path = shortPagePath50 });
 
                     //await page.ScreenshotAsync(new PageScreenshotOptions() { Quality = 5, Type = ScreenshotType.Jpeg, Path = shortPagePath5 });
@@ -297,7 +310,7 @@ alert(getFavicon());
                                 newSite.Url = $"http://{newSite.Name}";
                             }
                             sitesToAdd.Add(newSite);
-                            
+
                         }
                     }
 
