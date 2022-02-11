@@ -16,8 +16,11 @@ namespace PlaywrightTestLinuxContainer.Controllers
         //public JsonSerializerSettings JsonSerializerSettings { get; set; } =
         //   new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Serialize };
 
+        public IServiceProvider ServiceProvider { get; set; }
+
         public MyControllerBase(IServiceProvider serviceProvider)
         {
+            ServiceProvider = serviceProvider;
             SiteTimingContext = serviceProvider.GetRequiredService<SiteTimingContext>();
         }
     }
