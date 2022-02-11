@@ -20,6 +20,8 @@ using (SiteTimingContext context = new SiteTimingContext())
     context.Database.Migrate();
 }
 
+//var siteMap = HelperMethods.GetSiteMap();
+
 HelperMethods.PopulateSitesInDatabaseFromFile();
 HelperMethods.IpAddressOfServer = new WebClient().DownloadString("http://icanhazip.com").Replace("\\r\\n", "").Replace("\\n", "").Trim();
 

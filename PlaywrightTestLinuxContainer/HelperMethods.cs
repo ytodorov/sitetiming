@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Playwright;
 using Newtonsoft.Json;
 using System.Diagnostics;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -318,6 +319,44 @@ alert(getFavicon());
                     context.SaveChanges();
                 }
             }
+        }
+
+        public static string GetSiteMap()
+        {
+            StringBuilder sb = new StringBuilder();
+            using (SiteTimingContext context = new SiteTimingContext())
+            {
+                var sitesInDatabase = context.Sites
+                    .OrderBy(s => s.Id)
+                    .Take(1000)
+                    .Select(s => s.Url)
+                    .ToList()
+                    .Distinct()
+                    .ToList();
+
+                
+
+                sb.AppendLine(@"<?xml version=""1.0"" encoding=""UTF-8""?>
+<urlset xmlns=""http://www.sitemaps.org/schemas/sitemap/0.9"">");
+
+                sb.AppendLine($@"   <url>
+        <loc>https://www.sitetiming.com/</loc>
+    </url>");
+                sb.AppendLine($@"   <url>
+        <loc>https://www.sitetiming.com/sites</loc>
+    </url>");
+                foreach (var site in sitesInDatabase)
+                {
+                    sb.AppendLine($@"   <url>
+        <loc>https://www.sitetiming.com/{site.ToLowerInvariant()}</loc>
+    </url>");
+                }
+
+                sb.AppendLine("</urlset>");
+            }
+            var res = sb.ToString();
+
+            return res;
         }
 
         private static List<string> GetSitesFromFile()
