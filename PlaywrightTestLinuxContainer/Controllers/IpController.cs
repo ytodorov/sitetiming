@@ -18,11 +18,16 @@ namespace PlaywrightTestLinuxContainer.Controllers
         public IpController(IServiceProvider serviceProvider) : base(serviceProvider) { }
 
         [HttpGet(Name = "GetIp")]
-        public async Task<IActionResult> GetIp()
+        public async Task<IActionResult> GetIp(string ip)
         {
             try
             {
-                string stringIp = "77.70.29.69"; // HttpContext.Connection.RemoteIpAddress.ToString();
+                string stringIp = HttpContext.Connection.RemoteIpAddress.ToString();
+                if (!string.IsNullOrEmpty(ip))
+                {
+                    stringIp = ip;
+                }
+                //string stringIp = "77.70.29.69"; // HttpContext.Connection.RemoteIpAddress.ToString();
 
                 RedisValue ipDetailsAsJson = RedisConnection.Connection.GetDatabase().StringGet(stringIp);
 

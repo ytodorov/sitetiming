@@ -80,4 +80,5 @@ RUN dotnet publish "PlaywrightTestLinuxContainer.csproj" -c Release -o /app/publ
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+COPY --from=publish /app/publish/.playwright bin/.playwright
 ENTRYPOINT ["dotnet", "PlaywrightTestLinuxContainer.dll"]

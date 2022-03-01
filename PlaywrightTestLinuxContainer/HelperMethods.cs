@@ -71,7 +71,7 @@ namespace PlaywrightTestLinuxContainer
             Stopwatch sw = Stopwatch.StartNew();
 
             // FROM US - https://www.sitetiming.com/http://noi.bg timeout
-            float timeout = (float)TimeSpan.FromSeconds(30).TotalMilliseconds;
+            float timeout = (float)TimeSpan.FromSeconds(60).TotalMilliseconds;
 
             //using var playwright = await Playwright.CreateAsync();
             //await using var browser = await playwright.Chromium.LaunchAsync(new() { Headless = true, Timeout = timeout });

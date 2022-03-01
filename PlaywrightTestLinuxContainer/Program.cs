@@ -35,9 +35,19 @@ builder.Services.AddHttpClient();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<SiteTimingContext>();
 builder.Services.AddHostedService<TimedHostedService>();
+
+// Dirty hack
+var currDir = Environment.CurrentDirectory;
+Directory.CreateDirectory("/app/bin/.playwright/node/linux/");
+//File.Move("playwright.sh", "/app/bin/.playwright/node/linux/playwright.sh");
+   
+
 builder.Services.AddSingleton<IBrowser>((s) =>
 {
     var playwright = Playwright.CreateAsync().Result;
+
+    // UPDATE NUGGET PACKAGES IF ERROR
+    // /root/.cache/ms-playwright/chromium-956323/chrome-linux/chrome
     var browser = playwright.Chromium.LaunchAsync(
         new() { Headless = true, Timeout = (float)TimeSpan.FromMinutes(2).TotalMilliseconds }).Result;
 
