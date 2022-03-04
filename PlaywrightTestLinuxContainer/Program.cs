@@ -89,7 +89,7 @@ ConfigureGraphQL(builder.Services);
 
 var app = builder.Build();
 
-
+app.UseCors("AllowClient");
 
 // use graphql-playground at default url /ui/playground
 app.UseGraphQLPlayground(new PlaygroundOptions() {  SchemaPollingEnabled = false });
@@ -106,7 +106,7 @@ app.UseGraphQL<ISchema>();
 
 //app.UseAuthorization();
 
-app.UseCors("AllowClient");
+
 
 app.MapControllers();
 
