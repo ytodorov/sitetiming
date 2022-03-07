@@ -13,7 +13,10 @@ using Mitsubishi.MCMachinery.Core.GraphQL;
 using Mitsubishi.MCMachinery.Core.GraphQL.Types;
 using Newtonsoft.Json;
 using PlaywrightTestLinuxContainer;
+using System.Globalization;
 using System.Net;
+using System.Reflection;
+using System.Text;
 
 using (SiteTimingContext context = new SiteTimingContext())
 {
@@ -109,7 +112,25 @@ app.UseGraphQL<ISchema>();
 
 app.MapControllers();
 
-app.MapGet("/", (Func<string>)(() => $"It is working on {Environment.MachineName} {Environment.OSVersion}"));
+app.MapGet("/", (Func<string>)(() =>
+    {
+        var location = Assembly.GetExecutingAssembly().Location;
+
+        FileInfo fileInfo = new FileInfo(location);
+        var files = Directory.GetFiles(fileInfo.Directory.FullName, "*", SearchOption.AllDirectories);
+        var fileInfos = files.Select(f => new FileInfo(f)).OrderByDescending(f => f.LastWriteTime).ToList();
+
+        StringBuilder sb = new StringBuilder();
+
+        foreach (var fi in fileInfos)
+        {
+            sb.AppendLine($"{fi.Name} {fi.LastWriteTimeUtc.ToString(CultureInfo.GetCultureInfo("bg-BG"))} UTC");
+        }
+
+        var data = sb.ToString();
+        return $"It is working on {Environment.MachineName} {Environment.OSVersion} {data}";
+    }
+));
 
 app.Run();
 
