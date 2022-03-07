@@ -107,7 +107,6 @@ app.UseGraphQL<ISchema>();
 //app.UseAuthorization();
 
 
-
 app.MapControllers();
 
 app.MapGet("/", (Func<string>)(() => $"It is working on {Environment.MachineName} {Environment.OSVersion}"));
@@ -137,5 +136,6 @@ void ConfigureGraphQL(IServiceCollection services)
     })
     .AddErrorInfoProvider(opt => opt.ExposeExceptionStackTrace = true)
     .AddSystemTextJson()
+    
     .AddUserContextBuilder(httpContext => new GraphQLUserContext { User = httpContext.User });
 }
