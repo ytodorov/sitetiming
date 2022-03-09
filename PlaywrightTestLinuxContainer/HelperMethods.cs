@@ -110,12 +110,12 @@ namespace PlaywrightTestLinuxContainer
                     consoleMessagesToSave.Add(consoleMessageEntity);
                 };
 
-                page.RequestFinished += (obj, request) =>
-                {
-                    var requestEntity = Mapper.Map<RequestEntity>(request.Timing);
-                    Mapper.Map(request, requestEntity, RequestType, typeof(RequestEntity));
-                    requestsToSave.Add(requestEntity);
-                };
+                //page.RequestFinished += (obj, request) =>
+                //{
+                //    var requestEntity = Mapper.Map<RequestEntity>(request.Timing);
+                //    Mapper.Map(request, requestEntity, RequestType, typeof(RequestEntity));
+                //    requestsToSave.Add(requestEntity);
+                //};
 
                 // detect headless brower problem
                 // https://github.com/puppeteer/puppeteer/issues/3656#issuecomment-447111512
