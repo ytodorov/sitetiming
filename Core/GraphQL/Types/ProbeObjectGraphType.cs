@@ -20,10 +20,13 @@ namespace Core.GraphQL.Types
                .Name(nameof(ProbeEntity.Site))
                 .ResolveAsync(context =>
                 {
+                    // Трябва задължително да се включва SiteId в полетата които се искат от UI
                     return loader.LoadAsync(context.Source.SiteId);
                 });
 
             f.Argument<IntGraphType>("test");
+
+
             /*
               new QueryArgument<IntGraphType> { Name = nameof(QueryParams.Take).ToLowerInvariant() },
                    new QueryArgument<IntGraphType> { Name = nameof(QueryParams.Skip).ToLowerInvariant() },

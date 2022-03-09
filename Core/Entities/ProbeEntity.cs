@@ -7,7 +7,46 @@ namespace Core.Entities
     {
         public string? SourceIpAddress { get; set; }
 
+        public string? SourceIpAddressHostname { get; set; }
+
+        public string? SourceIpAddressCity { get; set; }
+
+        public string? SourceIpAddressRegion { get; set; }
+
+        public string? SourceIpAddressCountry { get; set; }
+
+
+        public string? SourceIpAddressPostal { get; set; }
+
+        public string? SourceIpAddressTimezone { get; set; }
+
+        public string? SourceIpAddressOrg { get; set; }
+
+        public double? SourceIpAddressLatitude { get; set; }
+
+        public double? SourceIpAddressLongitude { get; set; }
+
         public string? DestinationIpAddress { get; set; }
+
+        public string? DestinationIpAddressHostname { get; set; }
+
+        public string? DestinationIpAddressCity { get; set; }
+
+        public string? DestinationIpAddressRegion { get; set; }
+
+        public string? DestinationIpAddressCountry { get; set; }
+
+        public string? DestinationIpAddressPostal { get; set; }
+
+        public string? DestinationIpAddressTimezone { get; set; }
+
+        public string? DestinationIpAddressOrg { get; set; }
+
+        public double? DestinationIpAddressLatitude { get; set; }
+
+        public double? DestinationIpAddressLongitude { get; set; }
+
+        public double? DistanceBetweenIpAddresses { get; set; }
 
         public bool? IsSuccessfull { get; set; }
 
@@ -20,6 +59,8 @@ namespace Core.Entities
         public SiteEntity? Site { get; set; }
 
         public List<RequestEntity>? Requests { get; set; }
+
+        public List<ConsoleMessageEntity>? ConsoleMessages { get; set; }
 
         public long? TimetakenToGenerateInMs { get; set; }
 

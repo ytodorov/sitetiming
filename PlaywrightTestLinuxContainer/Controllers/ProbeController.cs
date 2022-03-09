@@ -1,8 +1,11 @@
 using Core.Entities;
+using Core.Redis;
+using IpInfo;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Playwright;
 using Newtonsoft.Json;
+using StackExchange.Redis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -10,14 +13,14 @@ namespace PlaywrightTestLinuxContainer.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class ProbeController : ControllerBase
+    public class ProbeController : MyControllerBase
     {
 
         private IBrowser browser;
 
-        public ProbeController(ILogger<ProbesController> logger, IBrowser browser)
+        public ProbeController(IServiceProvider serviceProvider) : base(serviceProvider)
         {
-            this.browser = browser;
+            this.browser = serviceProvider.GetService<IBrowser>();
         }
 
         [HttpGet(Name = "GetProbe")]
@@ -30,7 +33,7 @@ namespace PlaywrightTestLinuxContainer.Controllers
                 {
                     url = $"http://{url}";
                 }
-                
+
                 if (url != null)
                 {
                     result = await HelperMethods.ExecuteProbeAsync(url, browser);
@@ -46,6 +49,5 @@ namespace PlaywrightTestLinuxContainer.Controllers
 
             return result;
         }
-
     }
 }

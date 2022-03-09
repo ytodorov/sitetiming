@@ -41,6 +41,10 @@ namespace PlaywrightTestLinuxContainer
             //    return;
             //}
 
+#if (DEBUG)
+            return;
+#endif
+
             applicationInsightsClient.TrackEvent("DoWork Started");
 
 

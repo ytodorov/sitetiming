@@ -28,7 +28,7 @@ namespace Core.GraphQL
                 SiteTimingContext dbContext = scope.ServiceProvider.GetRequiredService<SiteTimingContext>();
 
                 IEnumerable<int> ids = list.Select(pair => pair.Key);
-                IDictionary<int, T> data = await dbContext.Set<T>().Where(order => ids.Contains(order.Id)).ToDictionaryAsync(x => x.Id, cancellationToken);
+                IDictionary<int, T> data = await dbContext.Set<T>().Where(entity => ids.Contains(entity.Id)).ToDictionaryAsync(x => x.Id, cancellationToken);
                 foreach (DataLoaderPair<int, T> entry in list)
                 {
                     entry.SetResult(data.TryGetValue(entry.Key, out var order) ? order : null);

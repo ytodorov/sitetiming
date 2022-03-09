@@ -2,9 +2,13 @@
 using Core;
 using Core.Classes;
 using Core.Entities;
+using Core.Redis;
+using IpInfo;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Playwright;
 using Newtonsoft.Json;
+using StackExchange.Redis;
+using System;
 using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
@@ -65,7 +69,7 @@ namespace PlaywrightTestLinuxContainer
             {
                 transaction.Rollback();
             }
-            
+
 
             ProbeEntity? probe = new ProbeEntity();
             Stopwatch sw = Stopwatch.StartNew();
@@ -87,18 +91,31 @@ namespace PlaywrightTestLinuxContainer
             IPage page = await browser.NewPageAsync(browserNewPageOptionsNew);
 
             List<RequestEntity> requestsToSave = new List<RequestEntity>();
+            List<ConsoleMessageEntity> consoleMessagesToSave = new List<ConsoleMessageEntity>();
 
             try
             {
                 page.SetDefaultNavigationTimeout(timeout);
                 page.SetDefaultTimeout(timeout);
 
-                //page.RequestFinished += (obj, request) =>
-                //{
-                //    var requestEntity = Mapper.Map<RequestEntity>(request.Timing);
-                //    Mapper.Map(request, requestEntity, RequestType, typeof(RequestEntity));
-                //    requestsToSave.Add(requestEntity);
-                //};
+                page.Console += (s, e) =>
+                {
+                    string str = e.ToString();
+                    ConsoleMessageEntity consoleMessageEntity = new ConsoleMessageEntity()
+                    {
+                        Text = e.Text,
+                        Type = e.Type,
+                        Location = e.Location
+                    };
+                    consoleMessagesToSave.Add(consoleMessageEntity);
+                };
+
+                page.RequestFinished += (obj, request) =>
+                {
+                    var requestEntity = Mapper.Map<RequestEntity>(request.Timing);
+                    Mapper.Map(request, requestEntity, RequestType, typeof(RequestEntity));
+                    requestsToSave.Add(requestEntity);
+                };
 
                 // detect headless brower problem
                 // https://github.com/puppeteer/puppeteer/issues/3656#issuecomment-447111512
@@ -268,6 +285,41 @@ alert(getFavicon());
             probe.TimetakenToGenerateInMs = (long)sw.Elapsed.TotalMilliseconds;
             probe.DateCreated = DateTime.UtcNow;
 
+            var destinationIpAddressInfo = await GetIpInfo(probe.DestinationIpAddress);
+            var sourceIpAddressInfo = await GetIpInfo(probe.SourceIpAddress);
+
+            probe.DestinationIpAddressHostname = destinationIpAddressInfo.Hostname;
+            probe.DestinationIpAddressCity = destinationIpAddressInfo.City;
+            probe.DestinationIpAddressRegion = destinationIpAddressInfo.Region;
+            probe.DestinationIpAddressCountry = destinationIpAddressInfo.Country;
+            //probe.DestinationIpAddressLoc = destinationIpAddressInfo.Loc;
+
+            probe.DestinationIpAddressLatitude = double.Parse(destinationIpAddressInfo.Loc.Split(",", StringSplitOptions.RemoveEmptyEntries).FirstOrDefault());
+            probe.DestinationIpAddressLongitude = double.Parse(destinationIpAddressInfo.Loc.Split(",", StringSplitOptions.RemoveEmptyEntries).Skip(1).FirstOrDefault());
+
+            probe.DestinationIpAddressPostal = destinationIpAddressInfo.Postal;
+            probe.DestinationIpAddressTimezone = destinationIpAddressInfo.Timezone;
+            probe.DestinationIpAddressOrg = destinationIpAddressInfo.Org;
+
+            probe.SourceIpAddressHostname = sourceIpAddressInfo.Hostname;
+            probe.SourceIpAddressCity = sourceIpAddressInfo.City;
+            probe.SourceIpAddressRegion = sourceIpAddressInfo.Region;
+            probe.SourceIpAddressCountry = sourceIpAddressInfo.Country;
+
+            //probe.SourceIpAddressLoc = sourceIpAddressInfo.Loc;
+
+            probe.SourceIpAddressLatitude = double.Parse(sourceIpAddressInfo.Loc.Split(",", StringSplitOptions.RemoveEmptyEntries).FirstOrDefault());
+            probe.SourceIpAddressLongitude = double.Parse(sourceIpAddressInfo.Loc.Split(",", StringSplitOptions.RemoveEmptyEntries).Skip(1).FirstOrDefault());
+
+            probe.SourceIpAddressPostal = sourceIpAddressInfo.Postal;
+            probe.SourceIpAddressTimezone = sourceIpAddressInfo.Timezone;
+            probe.SourceIpAddressOrg = sourceIpAddressInfo.Org;
+
+            probe.DistanceBetweenIpAddresses = DistanceBetweenInKm(probe.SourceIpAddressLatitude.GetValueOrDefault(),
+                probe.SourceIpAddressLongitude.GetValueOrDefault(),
+                probe.DestinationIpAddressLatitude.GetValueOrDefault(),
+                probe.DestinationIpAddressLongitude.GetValueOrDefault());
+
             await siteTimingContext.Probes.AddAsync(probe);
             await siteTimingContext.SaveChangesAsync();
 
@@ -276,7 +328,13 @@ alert(getFavicon());
                 r.ProbeId = probe.Id;
             }
 
+            foreach (var c in consoleMessagesToSave)
+            {
+                c.ProbeId = probe.Id;
+            }
+
             await siteTimingContext.Requests.AddRangeAsync(requestsToSave);
+            await siteTimingContext.ConsoleMessages.AddRangeAsync(consoleMessagesToSave);
 
             try
             {
@@ -334,7 +392,7 @@ alert(getFavicon());
                     .Distinct()
                     .ToList();
 
-                
+
 
                 sb.AppendLine(@"<?xml version=""1.0"" encoding=""UTF-8""?>
 <urlset xmlns=""http://www.sitemaps.org/schemas/sitemap/0.9"">");
@@ -372,5 +430,79 @@ alert(getFavicon());
 
             return result;
         }
+
+
+        private static async Task<FullResponse> GetIpInfo(string ip)
+        {
+            try
+            {
+                string stringIp = ip;
+                //string stringIp = "77.70.29.69"; // HttpContext.Connection.RemoteIpAddress.ToString();
+
+                RedisValue ipDetailsAsJson = RedisConnection.Connection.GetDatabase().StringGet(stringIp);
+
+                if (ipDetailsAsJson.IsNullOrEmpty)
+                {
+                    using HttpClient httpClient = new HttpClient();
+                    IpInfoApi api = new IpInfoApi("6a852f28bb9103", httpClient);
+
+                    FullResponse response = await api.GetInformationByIpAsync(stringIp);
+
+                    string responseAsJson = System.Text.Json.JsonSerializer.Serialize(response);
+
+                    RedisConnection.Connection.GetDatabase().StringSet(stringIp, responseAsJson);
+
+                    return response;
+
+                }
+                else
+                {
+                    FullResponse response = System.Text.Json.JsonSerializer.Deserialize<FullResponse>(ipDetailsAsJson);
+                    return response;
+                }
+            }
+            catch (Exception ex)
+            {
+                return new FullResponse() { Ip = ex.Message };
+            }
+        }
+
+        private static double DistanceBetweenInKm(double lat1, double lon1, double lat2, double lon2)
+        {
+            var unit = "K"; // Kilometers
+            if (lat1 == lat2 && lon1 == lon2)
+            {
+                return 0;
+            }
+            else
+            {
+                var radlat1 = (Math.PI * lat1) / 180;
+                var radlat2 = (Math.PI * lat2) / 180;
+                var theta = lon1 - lon2;
+                var radtheta = (Math.PI * theta) / 180;
+                var dist = Math.Sin(radlat1) * Math.Sin(radlat2) + Math.Cos(radlat1) * Math.Cos(radlat2) * Math.Cos(radtheta);
+                if (dist > 1)
+                {
+                    dist = 1;
+                }
+                dist = Math.Acos(dist);
+                dist = (dist * 180) / Math.PI;
+                dist = dist * 60 * 1.1515;
+                if (unit == "K")
+                {
+                    dist = dist * 1.609344;
+                }
+                if (unit == "N")
+                {
+                    dist = dist * 0.8684;
+                }
+                var distString = Math.Floor(dist);
+
+                return distString;
+            }
+        }
+
+
+
     }
 }

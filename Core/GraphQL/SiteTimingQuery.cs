@@ -43,7 +43,6 @@ namespace Mitsubishi.MCMachinery.Core.GraphQL
                 var queryParams = GraphQlHelpers.GetQueryParamsFromContext(context, typeof(ProbeEntity));
 
                 var entities = siteTimingContext.Probes.AsQueryable().ApplyQueryParams(queryParams).ToList();
-
                 return entities;
 
             };

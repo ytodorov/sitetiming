@@ -17,6 +17,21 @@ namespace Core.Entities
         public DateTime? DateCreated { get; set; } = DateTime.UtcNow;
 
         [NotMapped]
+        public string DateCreatedFormatted
+        {
+            get
+            {
+                var date = DateCreated.GetValueOrDefault().ToString("dd/MM/yyyy HH:mm:ss");
+
+                return date;
+            }
+            set
+            {
+
+            }
+        }
+
+        [NotMapped]
         public string DateCreatedAgo
         {
             get
@@ -24,6 +39,10 @@ namespace Core.Entities
                 var date = DateCreated.GetValueOrDefault().TimeAgo();
 
                 return date;
+            }
+            set
+            {
+
             }
         }
     }
