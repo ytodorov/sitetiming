@@ -57,8 +57,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends libegl1\
           gstreamer1.0-libav
 
 RUN npm install -D playwright
-RUN npm i -g npx
-RUN npx playwright install-deps
+#RUN npm i -g npx
+#RUN npx playwright install-deps
 
 
 EXPOSE 80
