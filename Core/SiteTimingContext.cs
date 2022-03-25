@@ -1,6 +1,7 @@
 ﻿using Core.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Logging;
 
 namespace PlaywrightTestLinuxContainer
@@ -22,6 +23,46 @@ namespace PlaywrightTestLinuxContainer
             //optionsBuilder.LogTo(Console.WriteLine, (eventId, logLevel) => eventId == RelationalEventId.CommandExecuted);
 
             optionsBuilder.UseSqlServer(connectionString, o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<SiteEntity>()
+               .HasIndex(b => b.Title);
+
+            modelBuilder.Entity<SiteEntity>()
+               .HasIndex(b => b.Name);
+
+            modelBuilder.Entity<SiteEntity>()
+               .HasIndex(b => b.Url);
+
+            modelBuilder.Entity<ProbeEntity>()
+               .HasIndex(b => b.SourceIpAddress);
+
+            modelBuilder.Entity<ProbeEntity>()
+               .HasIndex(b => b.DestinationIpAddress);
+
+            //modelBuilder.Entity<ConsoleMessageEntity>()
+            //   .HasIndex(b => b.Type);
+
+            //modelBuilder.Entity<ConsoleMessageEntity>()
+            //   .HasIndex(b => b.Text);
+
+
+            // Sets the default SQL Server string column length to be 900 characters.
+            //IEnumerable<IMutableProperty> allStringCollumns = modelBuilder.Model.GetEntityTypes()
+            //        .SelectMany(t => t.GetProperties())
+            //        .Where(p => p.ClrType == typeof(string));
+
+            //foreach (IMutableProperty property in allStringCollumns)
+            //{
+            //    if (property.GetMaxLength() == null)
+            //    {
+            //        property.SetMaxLength(4000);
+            //    }
+            //}
+
+            base.OnModelCreating(modelBuilder);
         }
     }
 }

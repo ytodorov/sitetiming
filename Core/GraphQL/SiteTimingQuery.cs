@@ -53,6 +53,23 @@ namespace Mitsubishi.MCMachinery.Core.GraphQL
                 resolve: func3
             );
 
+
+            Func<IResolveFieldContext, string, object> funcConsoleMessages = (context, id) =>
+            {
+                using SiteTimingContext siteTimingContext = new SiteTimingContext();
+                var queryParams = GraphQlHelpers.GetQueryParamsFromContext(context, typeof(ConsoleMessageEntity));
+
+                var entities = siteTimingContext.ConsoleMessages.AsQueryable().ApplyQueryParams(queryParams).ToList();
+                return entities;
+
+            };
+
+            FieldDelegate<ListGraphType<ConsoleMessageObjectGraphType>>(
+                "consoleMessages",
+                arguments: GraphQlHelpers.GetDefaultCollectionQueryArguments(),
+                resolve: funcConsoleMessages
+            );
+
         }
     }
 }

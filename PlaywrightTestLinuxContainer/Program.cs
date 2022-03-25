@@ -142,6 +142,7 @@ void ConfigureGraphQL(IServiceCollection services)
 
     services.AddSingleton<SiteObjectGraphType>();
     services.AddSingleton<ProbeObjectGraphType>();
+    services.AddSingleton<ConsoleMessageObjectGraphType>();
 
     services.AddSingleton<IDataLoaderContextAccessor, DataLoaderContextAccessor>();
     services.AddSingleton<DataLoaderDocumentListener>();
@@ -153,6 +154,7 @@ void ConfigureGraphQL(IServiceCollection services)
 
     services.AddGraphQL(options =>
     {
+        options.MaxParallelExecutionCount = 10;
         //options.EnableMetrics = true;
     })
     .AddErrorInfoProvider(opt => opt.ExposeExceptionStackTrace = true)
