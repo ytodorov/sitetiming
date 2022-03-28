@@ -20,6 +20,7 @@ using System.Text;
 
 using (SiteTimingContext context = new SiteTimingContext())
 {
+    context.Database.SetCommandTimeout(TimeSpan.FromSeconds(5000));
     context.Database.Migrate();
 }
 

@@ -17,10 +17,11 @@ namespace PlaywrightTestLinuxContainer
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             var connectionString = @"Server=tcp:hximbq2jrp.database.windows.net,1433;Initial Catalog=websitetimings;Persist Security Info=False;User ID=aYordan;Password=123Pass!@#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
-#if (DEBUG)
-            connectionString = "Data Source=.\\SQLDEVELOPER2019;Initial Catalog=sitetiming;Integrated Security=True;MultipleActiveResultSets=true;";
-#endif
-            //optionsBuilder.LogTo(Console.WriteLine, (eventId, logLevel) => eventId == RelationalEventId.CommandExecuted);
+            //connectionString = @"Server=tcp:hximbq2jrp.database.windows.net,1433;Initial Catalog=websitetimings-test;Persist Security Info=False;User ID=aYordan;Password=123Pass!@#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
+//#if (DEBUG)
+//            connectionString = "Data Source=.\\SQLDEVELOPER2019;Initial Catalog=sitetiming;Integrated Security=True;MultipleActiveResultSets=true;";
+//#endif
+//optionsBuilder.LogTo(Console.WriteLine, (eventId, logLevel) => eventId == RelationalEventId.CommandExecuted);
 
             optionsBuilder.UseSqlServer(connectionString, o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
         }
