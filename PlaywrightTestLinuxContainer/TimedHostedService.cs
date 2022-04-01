@@ -40,7 +40,7 @@ namespace PlaywrightTestLinuxContainer
             //{
             //    return;
             //}
-
+            return;
 #if (DEBUG)
             return;
 #endif
